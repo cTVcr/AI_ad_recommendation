@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- VideoPlayerView 组件布局 -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <!-- ExoPlayer的PlayerView -->
+    <androidx.media3.ui.PlayerView
+        android:id="@+id/player_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:use_controller="false"
+        app:surface_type="texture_view"
+        xmlns:app="http://schemas.android.com/apk/res-auto" />
+
+    <!-- 中央播放/暂停按钮 -->
+    <ImageView
+        android:id="@+id/play_button"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_play"
+        android:background="@drawable/bg_play_button"
+        android:padding="12dp"
+        android:clickable="true"
+        android:focusable="true" />
+
+</FrameLayout>

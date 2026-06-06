@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="card_image_height_large">300dp</dimen>
+    <dimen name="card_image_width_small">120dp</dimen>
+    <dimen name="tag_padding_horizontal">10dp</dimen>
+    <dimen name="tag_padding_vertical">4dp</dimen>
+    <dimen name="card_padding">12dp</dimen>
+    <dimen name="interaction_icon_size">32dp</dimen>
+</resources>

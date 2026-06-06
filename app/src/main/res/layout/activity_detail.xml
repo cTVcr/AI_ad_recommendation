@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_dark">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- ====== 框架说明 ====== -->
+        <!-- 详情页布局：全屏图片/视频 + 详情信息 + 互动 + 统计 -->
+
+        <!-- 图片/视频区域（全屏宽度） -->
+        <FrameLayout
+            android:id="@+id/detail_media_container"
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            android:background="#000000">
+
+            <ImageView
+                android:id="@+id/detail_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitCenter" />
+
+            <com.tao.android.ai_ad_recommendation.ui.component.VideoPlayerView
+                android:id="@+id/detail_video_player"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+
+        </FrameLayout>
+
+        <!-- 标题 -->
+        <TextView
+            android:id="@+id/detail_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:padding="16dp"
+            android:text="广告标题" />
+
+        <!-- 广告主 -->
+        <TextView
+            android:id="@+id/detail_advertiser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_light_gray"
+            android:textSize="14sp"
+            android:paddingHorizontal="16dp"
+            android:text="广告主名称" />
+
+        <!-- AI摘要 -->
+        <TextView
+            android:id="@+id/detail_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_light_gray"
+            android:textSize="15sp"
+            android:padding="16dp"
+            android:lineSpacingExtra="4dp"
+            android:text="详细描述..." />
+
+        <!-- 标签容器 -->
+        <LinearLayout
+            android:id="@+id/detail_tags_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- 互动栏（复用） -->
+        <com.tao.android.ai_ad_recommendation.ui.component.InteractionBar
+            android:id="@+id/detail_interaction_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="8dp" />
+
+        <!-- 分割线 -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#33FFFFFF"
+            android:layout_margin="16dp" />
+
+        <!-- 统计标题 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📊 广告数据统计"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:paddingHorizontal="16dp" />
+
+        <!-- 统计柱状图 -->
+        <com.tao.android.ai_ad_recommendation.ui.component.StatsChartView
+            android:id="@+id/detail_stats_chart"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_margin="16dp" />
+
+    </LinearLayout>
+
+</ScrollView>
