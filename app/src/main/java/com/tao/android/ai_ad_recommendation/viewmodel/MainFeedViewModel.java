@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.tao.android.ai_ad_recommendation.data.repository.AdRepository;
 import com.tao.android.ai_ad_recommendation.model.AdItem;
+import com.tao.android.ai_ad_recommendation.util.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,6 +70,17 @@ public class MainFeedViewModel extends ViewModel {
     // TODO: 【你来写-中等】
     public void loadFirstPage() {
         // ====== 你的代码从这里开始 ======
+        isLoading.setValue(true);
+
+        List<AdItem> data=repository.loadInitialAds();
+
+        adList.setValue(data);
+        currentPage.setValue(0);
+
+        hasMore.setValue(data.size()>= Constants.PAGE_SIZE);
+
+        isLoading.postValue(false);
+
 
         // ====== 你的代码到这里结束 ======
     }
@@ -89,7 +101,30 @@ public class MainFeedViewModel extends ViewModel {
     // TODO: 【你来写-中等】
     public void loadNextPage() {
         // ====== 你的代码从这里开始 ======
+        if (Boolean.TRUE.equals(isLoading.getValue())||Boolean.FALSE.equals(hasMore.getValue())) {
+            return;
+        }
+        isLoading.setValue(true);
+        int nextPage=currentPage.getValue()+1;
+        List<AdItem> newData;
+        String tab=currentTab.getValue();
 
+        if ("推荐".equals(tab)) {
+            newData=repository.loadNextPage(nextPage);
+        }else {
+            newData=repository.loadAdsByCategory(tab,nextPage);
+        }
+
+        if (newData.isEmpty()) {
+            hasMore.setValue(false);//没有数据了
+        }else {
+            List<AdItem> merged=new ArrayList<>(adList.getValue());
+            merged.addAll(newData);
+            adList.setValue(merged);
+            currentPage.setValue(nextPage);
+        }
+
+        isLoading.postValue(false);
         // ====== 你的代码到这里结束 ======
     }
 
@@ -109,6 +144,24 @@ public class MainFeedViewModel extends ViewModel {
     // TODO: 【你来写-中等】
     public void switchTab(String tab) {
         // ====== 你的代码从这里开始 ======
+        currentTab.setValue(tab);
+        isLoading.setValue(true);
+
+        List<AdItem> data;
+
+        if ("推荐".equals(tab)) {
+            data=repository.loadInitialAds();
+        }else {
+            data=repository.loadAdsByCategory(tab,0);
+        }
+
+
+        adList.setValue(data);
+
+        currentPage.setValue(0);
+
+        hasMore.setValue(data.size()>= Constants.PAGE_SIZE);
+        isLoading.postValue(false);
 
         // ====== 你的代码到这里结束 ======
     }
@@ -126,8 +179,26 @@ public class MainFeedViewModel extends ViewModel {
      */
     // TODO: 【你来写-中等】
     public void refresh() {
-        // ====== 你的代码从这里开始 ======
+        isRefreshing.setValue(true);
 
-        // ====== 你的代码到这里结束 ======
+        String tab = currentTab.getValue();
+        List<AdItem> newData;
+
+        if ("推荐".equals(tab)) {
+            newData = repository.refreshAds();
+        } else {
+            // 先按分类加载，再随机打乱
+            newData = repository.loadAdsByCategory(tab, 0);
+            if (newData != null) {
+                java.util.Collections.shuffle(newData);
+            }
+        }
+
+        if (newData != null && !newData.isEmpty()) {
+            adList.setValue(newData);
+            currentPage.setValue(0);
+            hasMore.setValue(newData.size() >= Constants.PAGE_SIZE);
+        }
+        isRefreshing.setValue(false);
     }
 }

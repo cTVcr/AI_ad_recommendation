@@ -2,17 +2,19 @@ package com.tao.android.ai_ad_recommendation.data.remote;
 
 import android.content.Context;
 
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.Gson;
 import com.tao.android.ai_ad_recommendation.model.AdItem;
 import com.tao.android.ai_ad_recommendation.util.Constants;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -72,10 +74,32 @@ public class MockDataSource {
      * }
      * }</pre>
      */
+//    public String parseAdFeedJson(){
+//
+//
+//    }
+
+
     // TODO: 【你来写-中等】实现这个方法
     public void loadMockData() {
         // ====== 你的代码从这里开始 ======
+        try {
+            InputStream is = context.getAssets().open(Constants.MOCK_DATA_FILE);
 
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            reader.close();
+//            Gson 把JSON字符串-->Java对象列表
+            Type listType = new TypeToken<List<AdItem>>() {}.getType();
+            allAds=gson.fromJson(sb.toString(),listType);
+        } catch (IOException e) {
+            e.printStackTrace();
+            allAds=new ArrayList<>();
+        }
         // ====== 你的代码到这里结束 ======
     }
 
@@ -100,7 +124,19 @@ public class MockDataSource {
     public List<AdItem> getPage(int page) {
         // ====== 你的代码从这里开始 ======
 
-        return new ArrayList<>();  // 替换这行
+        if (allAds==null) {
+            loadMockData();
+        }
+
+        int start=page*Constants.PAGE_SIZE;
+
+        if (start >= allAds.size()) {
+            return new ArrayList<>();
+        }
+
+        int end=Math.min(start+Constants.PAGE_SIZE, allAds.size());
+
+        return new ArrayList<>(allAds.subList(start,end));
 
         // ====== 你的代码到这里结束 ======
     }
@@ -125,8 +161,21 @@ public class MockDataSource {
     // TODO: 【你来写-中等】实现这个方法
     public List<AdItem> getPageByCategory(String category, int page) {
         // ====== 你的代码从这里开始 ======
+        if (allAds==null) {
+            loadMockData();
+        }
+        List<AdItem> itemList = allAds.stream().filter(ad -> {
+            return ad.getCategory().equals(category);
+        }).collect(Collectors.toList());
 
-        return new ArrayList<>();  // 替换这行
+        int start=page*Constants.PAGE_SIZE;
+        if (start >= itemList.size()) {
+            return new ArrayList<>();
+        }
+        int end=Math.min(start+Constants.PAGE_SIZE, itemList.size());
+
+        return new ArrayList<>(itemList.subList(start,end));  // 替换这行
+
 
         // ====== 你的代码到这里结束 ======
     }
@@ -148,8 +197,16 @@ public class MockDataSource {
     // TODO: 【你来写-中等】实现这个方法
     public List<AdItem> getRandomAds(int count) {
         // ====== 你的代码从这里开始 ======
+        if (allAds==null) {
+            loadMockData();
+        }
+        List<AdItem> nList=new ArrayList<>(allAds);
 
-        return new ArrayList<>();  // 替换这行
+
+        Collections.shuffle(nList);
+
+        int limit=Math.min(nList.size(), count);
+        return new ArrayList<>(nList.subList(0,limit));  // 替换这行
 
         // ====== 你的代码到这里结束 ======
     }

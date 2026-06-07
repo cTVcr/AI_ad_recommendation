@@ -2,109 +2,254 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_dark">
+    android:background="#F9F6F0"
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingBottom="24dp">
 
-        <!-- ====== 框架说明 ====== -->
-        <!-- 详情页布局：全屏图片/视频 + 详情信息 + 互动 + 统计 -->
-
-        <!-- 图片/视频区域（全屏宽度） -->
+        <!-- 顶部色块（圆角，和卡片风格一致） -->
         <FrameLayout
             android:id="@+id/detail_media_container"
             android:layout_width="match_parent"
-            android:layout_height="400dp"
-            android:background="#000000">
+            android:layout_height="280dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_card_rounded">
 
             <ImageView
                 android:id="@+id/detail_image"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="fitCenter" />
+                android:layout_height="match_parent" />
+
+            <TextView
+                android:id="@+id/detail_banner_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="广告标题"
+                android:textColor="#FFFFFF"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:padding="24dp"
+                android:maxLines="2"
+                android:shadowColor="#40000000"
+                android:shadowRadius="6" />
 
             <com.tao.android.ai_ad_recommendation.ui.component.VideoPlayerView
                 android:id="@+id/detail_video_player"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:visibility="gone" />
-
         </FrameLayout>
 
-        <!-- 标题 -->
-        <TextView
-            android:id="@+id/detail_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/white"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:padding="16dp"
-            android:text="广告标题" />
-
-        <!-- 广告主 -->
-        <TextView
-            android:id="@+id/detail_advertiser"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/text_light_gray"
-            android:textSize="14sp"
-            android:paddingHorizontal="16dp"
-            android:text="广告主名称" />
-
-        <!-- AI摘要 -->
-        <TextView
-            android:id="@+id/detail_description"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/text_light_gray"
-            android:textSize="15sp"
-            android:padding="16dp"
-            android:lineSpacingExtra="4dp"
-            android:text="详细描述..." />
-
-        <!-- 标签容器 -->
+        <!-- 信息卡片（白底圆角） -->
         <LinearLayout
-            android:id="@+id/detail_tags_container"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_card_rounded"
+            android:padding="18dp"
+            android:elevation="1dp">
+
+            <TextView
+                android:id="@+id/detail_advertiser"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="广告主"
+                android:textColor="#AAAAAA"
+                android:textSize="11sp"
+                android:drawableStart="@drawable/ic_verified"
+                android:drawablePadding="4dp" />
+
+            <TextView
+                android:id="@+id/detail_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="广告标题"
+                android:textColor="#333333"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="8dp" />
+
+            <TextView
+                android:id="@+id/detail_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="详细描述..."
+                android:textColor="#999999"
+                android:textSize="14sp"
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="4dp" />
+
+            <LinearLayout
+                android:id="@+id/detail_tags_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp" />
+
+            <com.tao.android.ai_ad_recommendation.ui.component.InteractionBar
+                android:id="@+id/detail_interaction_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" />
+        </LinearLayout>
+
+        <!-- AI深度分析卡片 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_card_rounded"
+            android:padding="18dp"
+            android:elevation="1dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🤖 AI 深度分析"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/detail_ai_analysis"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="AI将根据广告内容生成深度分析报告..."
+                android:textColor="#666666"
+                android:textSize="14sp"
+                android:layout_marginTop="12dp"
+                android:lineSpacingExtra="4dp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#F0F0F0"
+                android:layout_marginVertical="14dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="✨ 亮点速览"
+                android:textColor="#333333"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/detail_highlights_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="8dp" />
+        </LinearLayout>
+
+        <!-- 广告数据和标签 -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingHorizontal="16dp"
-            android:layout_marginBottom="8dp" />
-
-        <!-- 互动栏（复用） -->
-        <com.tao.android.ai_ad_recommendation.ui.component.InteractionBar
-            android:id="@+id/detail_interaction_bar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="12dp"
+            android:gravity="center">
 
-        <!-- 分割线 -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#33FFFFFF"
-            android:layout_margin="16dp" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/bg_card_rounded"
+                android:padding="14dp"
+                android:layout_marginEnd="6dp"
+                android:elevation="1dp">
 
-        <!-- 统计标题 -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="📊 广告数据统计"
-            android:textColor="@color/white"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:paddingHorizontal="16dp" />
+                <TextView
+                    android:id="@+id/detail_stat_impressions"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="12,580"
+                    android:textColor="#FF6B6B"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
-        <!-- 统计柱状图 -->
-        <com.tao.android.ai_ad_recommendation.ui.component.StatsChartView
-            android:id="@+id/detail_stats_chart"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_margin="16dp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="👁 曝光"
+                    android:textColor="#AAAAAA"
+                    android:textSize="11sp"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/bg_card_rounded"
+                android:padding="14dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginEnd="6dp"
+                android:elevation="1dp">
+
+                <TextView
+                    android:id="@+id/detail_stat_clicks"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="3,420"
+                    android:textColor="#4CAF50"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="👆 点击"
+                    android:textColor="#AAAAAA"
+                    android:textSize="11sp"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/bg_card_rounded"
+                android:padding="14dp"
+                android:layout_marginStart="6dp"
+                android:elevation="1dp">
+
+                <TextView
+                    android:id="@+id/detail_stat_rate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="27.2%"
+                    android:textColor="#FF9800"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📈 点击率"
+                    android:textColor="#AAAAAA"
+                    android:textSize="11sp"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+        </LinearLayout>
 
     </LinearLayout>
 

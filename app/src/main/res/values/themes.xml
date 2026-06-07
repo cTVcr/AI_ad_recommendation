@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.AI_ad_recommendation" parent="Theme.AppCompat.DayNight.NoActionBar" />
+    <!-- 主题定义在 styles.xml 中，此处保留空文件以防IDE报错 -->
 </resources>

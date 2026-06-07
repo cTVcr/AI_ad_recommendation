@@ -6,6 +6,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -15,7 +19,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.tabs.TabLayout;
-import com.tao.android.ai_ad_recommendation.AiAdApplication;
 import com.tao.android.ai_ad_recommendation.R;
 import com.tao.android.ai_ad_recommendation.data.repository.AdRepository;
 import com.tao.android.ai_ad_recommendation.model.AdItem;
@@ -61,6 +64,13 @@ public class MainFeedFragment extends Fragment {
         swipeRefresh = view.findViewById(R.id.swipe_refresh);
         recyclerView = view.findViewById(R.id.recycler_view);
 
+        // 搜索框：点击弹出搜索弹窗（不直接输入，用SearchDialogFragment）
+        EditText searchBox = view.findViewById(R.id.search_box);
+        searchBox.setOnClickListener(v -> {
+            SearchDialogFragment dialog = new SearchDialogFragment();
+            dialog.show(getParentFragmentManager(), "SearchDialog");
+        });
+
         // ====== 第二步：创建ViewModel ======
         // 💡 知识点：ViewModelProvider 创建ViewModel，自动管理生命周期
         AdRepository repository = new AdRepository(requireContext());
@@ -77,6 +87,11 @@ public class MainFeedFragment extends Fragment {
         // 3. 创建 AdFeedAdapter
         // 4. recyclerView.setAdapter(adapter)
 
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        adapter=new AdFeedAdapter();
+        recyclerView.setAdapter(adapter);
+
         // ====== 第四步：设置Tab切换 ======
         // TODO: 【你来写-中等】setupTabLayout()
         //
@@ -87,12 +102,28 @@ public class MainFeedFragment extends Fragment {
         // 4. tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener(){...})
         //    在 onTabSelected 中调用 viewModel.switchTab(tab.getText().toString())
 
+        tabLayout.addTab(tabLayout.newTab().setText("推荐"));
+        tabLayout.addTab(tabLayout.newTab().setText("关注"));
+        tabLayout.addTab(tabLayout.newTab().setText("热门"));
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewModel.switchTab(tab.getText().toString());
+            }
+            @Override public void onTabUnselected(TabLayout.Tab tab) {}
+            @Override public void onTabReselected(TabLayout.Tab tab) {}
+        });
         // ====== 第五步：设置下拉刷新 ======
         // TODO: 【你来写-简单】setupSwipeRefresh()
         //
         // 思路：
         // swipeRefresh.setOnRefreshListener(() -> viewModel.refresh())
         // 观察 viewModel.isRefreshing，更新 swipeRefresh.setRefreshing()
+
+        swipeRefresh.setOnRefreshListener(() -> viewModel.refresh());
+        viewModel.isRefreshing.observe(getViewLifecycleOwner(), refreshing
+                ->
+                swipeRefresh.setRefreshing(refreshing != null && refreshing));
 
         // ====== 第六步：设置无限滚动 ======
         // TODO: 【你来写-中等】setupInfiniteScroll()
@@ -111,17 +142,33 @@ public class MainFeedFragment extends Fragment {
         //     }
         // })
 
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView rv, int dx, int dy) {
+                LinearLayoutManager lm = (LinearLayoutManager)
+                        rv.getLayoutManager();
+                if (lm != null && lm.findLastVisibleItemPosition() >=
+                        adapter.getItemCount() - 2) {
+                    viewModel.loadNextPage();
+                }
+            }
+        });
+
         // ====== 第七步：观察ViewModel数据变化 ======
         // TODO: 【你来写-中等】observeData()
         //
         // 思路：
-        // viewModel.adList.observe(getViewLifecycleOwner(), ads -> {
-        //     adapter.setData(ads);
-        //     adapter.notifyDataSetChanged();
-        // })
+         viewModel.adList.observe(getViewLifecycleOwner(), ads -> {
+             adapter.setData(ads);
+             adapter.notifyDataSetChanged();
+         });
         //
         // viewModel.isLoading.observe(...)  // 控制loading提示
         // viewModel.hasMore.observe(...)    // 控制"没有更多了"
+
+
+
 
         // ====== 第八步：加载首页数据 ======
         viewModel.loadFirstPage();
@@ -157,14 +204,42 @@ public class MainFeedFragment extends Fragment {
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             // TODO: 【你来写-中等】根据viewType加载不同item布局
             // 用 LayoutInflater.from(parent.getContext()).inflate(...)
-            return null;
+            View view=LayoutInflater.from(parent.getContext()).inflate(R.layout.view_ad_card,parent,false);
+            return new ViewHolder(view);
         }
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             // TODO: 【你来写-中等】绑定数据到ViewHolder
             // AdItem item = adList.get(position)
-            // 设置标题、描述、图片(Glide)、标签、互动数据
+
+            AdItem item=adList.get(position);
+
+            holder.titleView.setText(item.getTitle());
+            holder.descriptionView.setText(item.getDescription());
+            holder.advertiserView.setText(item.getAdvertiser());
+
+            // 💡 知识点：不需要网络图片，用分类颜色+叠加文字区分每个广告
+            int bgColor = getCategoryColor(item.getCategory());
+            holder.bannerContainer.getBackground().setTint(bgColor);
+            holder.categoryBannerText.setText(item.getTitle());
+
+
+            holder.itemView.setOnClickListener(v -> {
+                Intent intent=new Intent(v.getContext(), DetailActivity.class);
+                intent.putExtra("ad_item", item);
+                v.getContext().startActivity(intent);
+            });
+        }
+
+        /** 根据广告分类返回对应的颜色（每个分类视觉上能区分） */
+        private int getCategoryColor(String category) {
+            switch (category) {
+                case "推荐": return 0xFFA8D8EA;  // 天空蓝
+                case "关注": return 0xFFFFC8C3;  // 樱花粉
+                case "热门": return 0xFFFFE0C8;  // 蜜桃橙
+                default:     return 0xFFC1E8D5;  // 薄荷绿
+            }
         }
 
         @Override
@@ -179,15 +254,26 @@ public class MainFeedFragment extends Fragment {
         @Override
         public int getItemViewType(int position) {
             // TODO: 【你来写-中等】根据 adList.get(position).getType() 返回不同type值
+//            只用手机端
             return 0;
         }
 
         static class ViewHolder extends RecyclerView.ViewHolder {
             // TODO: 【你来写-简单】在构造方法中 findViewById 绑定子控件
             // 标题、描述、图片、视频播放器、标签、互动按钮等
+            ImageView mainImageView;
+            FrameLayout bannerContainer;   // 色块容器（有顶部圆角）
+            TextView categoryBannerText;   // 色块上叠加的标题
+            TextView titleView,descriptionView,advertiserView;
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
+                mainImageView=itemView.findViewById(R.id.card_image);
+                bannerContainer=itemView.findViewById(R.id.card_media_container);
+                categoryBannerText=itemView.findViewById(R.id.card_banner_text);
+                titleView=itemView.findViewById(R.id.card_title);
+                descriptionView=itemView.findViewById(R.id.card_description);
+                advertiserView=itemView.findViewById(R.id.card_advertiser);
             }
         }
     }
@@ -199,10 +285,10 @@ public class MainFeedFragment extends Fragment {
      * 【已实现】不需要修改。
      * 如果你的ViewModel构造参数变了，在这里相应修改即可。
      */
-    static class MainFeedViewModelFactory implements ViewModelProvider.Factory {
+    public static class MainFeedViewModelFactory implements ViewModelProvider.Factory {
         private final AdRepository repository;
 
-        MainFeedViewModelFactory(AdRepository repository) {
+        public MainFeedViewModelFactory(AdRepository repository) {
             this.repository = repository;
         }
 

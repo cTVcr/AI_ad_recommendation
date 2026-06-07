@@ -3,21 +3,34 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/background_dark">
+    android:background="#F9F6F0">
 
-    <!-- ====== 框架说明 ====== -->
-    <!-- 信息流Fragment布局：TabLayout + SwipeRefresh + RecyclerView -->
-    <!-- 类似抖音：顶部Tab切换 → 下方全屏滑动列表 -->
+    <!-- 搜索框 -->
+    <EditText
+        android:id="@+id/search_box"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_margin="10dp"
+        android:hint="🔍 搜索你感兴趣的广告..."
+        android:inputType="text"
+        android:paddingHorizontal="16dp"
+        android:background="@drawable/bg_search_input"
+        android:textColor="#333333"
+        android:textColorHint="#AAAAAA"
+        android:textSize="14sp"
+        android:clickable="true"
+        android:focusable="false"
+        android:cursorVisible="false" />
 
     <!-- Tab分类栏 -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:background="@color/background_dark"
-        app:tabTextColor="@color/white"
-        app:tabSelectedTextColor="@color/accent_color"
-        app:tabIndicatorColor="@color/accent_color"
+        android:layout_height="40dp"
+        android:background="#F9F6F0"
+        app:tabTextColor="#999999"
+        app:tabSelectedTextColor="#FF6B6B"
+        app:tabIndicatorColor="#FF6B6B"
         app:tabMode="fixed"
         xmlns:app="http://schemas.android.com/apk/res-auto" />
 
@@ -28,11 +41,13 @@
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <!-- 广告列表 -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:paddingTop="4dp"
+            android:paddingBottom="16dp"
+            android:clipToPadding="false" />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

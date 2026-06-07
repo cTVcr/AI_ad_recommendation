@@ -2,11 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
-
-    <!-- ====== 框架说明 ====== -->
-    <!-- 主Activity布局：Fragment通过XML的<fragment>标签加载 -->
-    <!-- 这样比在Java中手动FragmentTransaction更简洁 -->
+    android:orientation="vertical"
+    android:fitsSystemWindows="true">
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_container"

@@ -1,21 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- 主题色 -->
-    <color name="accent_color">#FF004D</color>
-    <color name="background_dark">#1A1A1A</color>
+    <color name="accent_color">#FF6B6B</color>
+    <color name="background_dark">#F5F0EB</color>
     <color name="white">#FFFFFF</color>
-    <color name="black">#000000</color>
+    <color name="black">#333333</color>
 
-    <!-- 文字颜色 -->
-    <color name="text_light_gray">#CCCCCC</color>
+    <color name="text_light_gray">#AAAAAA</color>
     <color name="text_gray">#999999</color>
 
-    <!-- 标签颜色 -->
-    <color name="tag_bg">#33FFFFFF</color>
-    <color name="tag_text_color">#AAAAAA</color>
-    <color name="tag_selected_bg">#FF004D</color>
+    <color name="tag_bg">#F0F0F0</color>
+    <color name="tag_text_color">#888888</color>
+    <color name="tag_selected_bg">#FF6B6B</color>
 
-    <!-- 原有颜色（保留） -->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
