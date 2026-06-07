@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- App基础主题 -->
-    <style name="Theme.AI_ad_recommendation" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <item name="android:statusBarColor">@color/background_dark</item>
-        <item name="android:navigationBarColor">@color/background_dark</item>
-        <item name="android:windowBackground">@color/background_dark</item>
-    </style>
+<!--    <style name="Theme.AI_ad_recommendation" parent="Theme.AppCompat.DayNight.NoActionBar">-->
+<!--        <item name="android:statusBarColor">@color/background_dark</item>-->
+<!--        <item name="android:navigationBarColor">@color/background_dark</item>-->
+<!--        <item name="android:windowBackground">@color/background_dark</item>-->
+<!--    </style>-->
 </resources>

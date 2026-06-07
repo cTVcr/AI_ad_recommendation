@@ -1,7 +1,9 @@
 package com.tao.android.ai_ad_recommendation.model;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 /**
@@ -16,6 +18,7 @@ import androidx.room.PrimaryKey;
 public class AdItem {
 
     @PrimaryKey
+    @NonNull
     @ColumnInfo(name = "id")
     private String id;
 
@@ -59,7 +62,8 @@ public class AdItem {
     // ====== 构造方法 (Room需要空构造+全参构造) ======
     public AdItem() {}
 
-    public AdItem(String id, String title, String description, String imageUrl,
+    @Ignore
+    public AdItem(@NonNull String id, String title, String description, String imageUrl,
                   String videoUrl, String type, String advertiser, String category,
                   String summary, String tags, int impressions, int clicks, long timestamp) {
         this.id = id;
@@ -78,8 +82,10 @@ public class AdItem {
     }
 
     // ====== Getter/Setter (Room通过反射调用，必须有) ======
+    @NonNull
     public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+
+    public void setId(@NonNull String id) { this.id = id; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }

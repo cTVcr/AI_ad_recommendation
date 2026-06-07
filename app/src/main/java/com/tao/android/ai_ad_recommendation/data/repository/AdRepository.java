@@ -40,7 +40,9 @@ public class AdRepository {
     // TODO: 【你来写-简单】
     public List<AdItem> loadInitialAds() {
         // ====== 你的代码 ======
-        return null;
+        mockDataSource.loadMockData();
+        List<AdItem> page0 = mockDataSource.getPage(0);
+        return page0;
     }
 
     /**
@@ -52,7 +54,7 @@ public class AdRepository {
     // TODO: 【你来写-简单】
     public List<AdItem> loadNextPage(int page) {
         // ====== 你的代码 ======
-        return null;
+       return mockDataSource.getPage(page);
     }
 
     /**
@@ -64,7 +66,7 @@ public class AdRepository {
     // TODO: 【你来写-简单】
     public List<AdItem> loadAdsByCategory(String tab, int page) {
         // ====== 你的代码 ======
-        return null;
+        return mockDataSource.getPageByCategory(tab, page);
     }
 
     /**
@@ -76,7 +78,8 @@ public class AdRepository {
     // TODO: 【你来写-简单】
     public List<AdItem> refreshAds() {
         // ====== 你的代码 ======
-        return null;
+        return mockDataSource.getRandomAds(10);
+
     }
 
     /** 获取总数据量 */

@@ -1,8 +1,6 @@
 package com.tao.android.ai_ad_recommendation.ui.component;
 
-import android.animation.Animator;
 import android.animation.AnimatorSet;
-import android.animation.ScaleXEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.util.AttributeSet;

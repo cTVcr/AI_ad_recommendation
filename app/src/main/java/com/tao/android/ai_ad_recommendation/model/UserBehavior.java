@@ -1,7 +1,9 @@
 package com.tao.android.ai_ad_recommendation.model;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 /**
@@ -16,6 +18,7 @@ import androidx.room.PrimaryKey;
  */
 @Entity(tableName = "user_behaviors")
 public class UserBehavior {
+
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
@@ -36,7 +39,8 @@ public class UserBehavior {
     // ====== 构造方法 ======
     public UserBehavior() {}
 
-    public UserBehavior(String adId, String behaviorType, String commentText, long timestamp) {
+    @Ignore
+    public UserBehavior( @NonNull String adId, String behaviorType, String commentText, long timestamp) {
         this.adId = adId;
         this.behaviorType = behaviorType;
         this.commentText = commentText;
@@ -44,8 +48,9 @@ public class UserBehavior {
     }
 
     // ====== Getter/Setter ======
+
     public long getId() { return id; }
-    public void setId(long id) { this.id = id; }
+    public void setId( long id) { this.id = id; }
 
     public String getAdId() { return adId; }
     public void setAdId(String adId) { this.adId = adId; }
