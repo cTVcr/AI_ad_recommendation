@@ -54,7 +54,18 @@ public class BehaviorRepository {
             // 1. TODO 查询behaviors表：adId+BEHAVIOR_LIKE 是否存在
             // 2. TODO 如果存在 → deleteBehavior()，callback(false)
             // 3. TODO 如果不存在 → insertBehavior(new UserBehavior(...))，callback(true)
+            executor.execute(() -> {
+                UserBehavior existing = behaviorDao.getBehaviorSync(adId, Constants.BEHAVIOR_LIKE);
+                if (existing==null) {
+                    behaviorDao.deleteBehavior(existing);
+                    callback.onResult(false);
 
+                }else {
+                    UserBehavior like = new UserBehavior(adId, Constants.BEHAVIOR_LIKE, null, System.currentTimeMillis());
+                    behaviorDao.insertBehavior(like);
+                    callback.onResult(true);
+                }
+            });
             // ====== 你的代码到这里结束 ======
         });
     }
@@ -69,6 +80,15 @@ public class BehaviorRepository {
     public void toggleFavorite(String adId, OnToggleCallback callback) {
         executor.execute(() -> {
             // ====== 你的代码从这里开始 ======
+            UserBehavior existing = behaviorDao.getBehaviorSync(adId, Constants.BEHAVIOR_FAVORITE);
+            if (existing!=null) {
+                behaviorDao.deleteBehavior(existing);
+                callback.onResult(false);
+            }else {
+                UserBehavior fav = new UserBehavior(adId, Constants.BEHAVIOR_FAVORITE, null, System.currentTimeMillis());
+                behaviorDao.insertBehavior(fav);
+                callback.onResult(true);
+            }
 
             // ====== 你的代码到这里结束 ======
         });
@@ -85,7 +105,8 @@ public class BehaviorRepository {
     public void addComment(String adId, String commentText) {
         executor.execute(() -> {
             // ====== 你的代码 ======
-
+            UserBehavior comment = new UserBehavior(adId, Constants.BEHAVIOR_COMMENT, commentText, System.currentTimeMillis());
+            behaviorDao.insertBehavior(comment);
         });
     }
 

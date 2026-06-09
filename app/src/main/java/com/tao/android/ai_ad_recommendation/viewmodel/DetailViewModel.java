@@ -85,6 +85,11 @@ public class DetailViewModel extends ViewModel {
     // TODO: 【你来写-中等】
     public void toggleLike() {
         // ====== 你的代码 ======
+        AdItem ad=currentAd.getValue();
+        if (ad==null) return;
+
+
+
     }
 
     /**

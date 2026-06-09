@@ -42,6 +42,10 @@ public interface BehaviorDao {
     @Query("SELECT * FROM user_behaviors WHERE ad_id = :adId AND behavior_type = :type LIMIT 1")
     LiveData<UserBehavior> getBehavior(String adId, String type);
 
+    /** 同步查询（仅在后台线程使用！toggle逻辑用） */
+    @Query("SELECT * FROM user_behaviors WHERE ad_id = :adId AND behavior_type = :type LIMIT 1")
+    UserBehavior getBehaviorSync(String adId, String type);
+
     /** 插入一条行为记录 */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertBehavior(UserBehavior behavior);
