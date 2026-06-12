@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -19,9 +20,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.tabs.TabLayout;
+import com.tao.android.ai_ad_recommendation.AiAdApplication;
 import com.tao.android.ai_ad_recommendation.R;
 import com.tao.android.ai_ad_recommendation.data.repository.AdRepository;
+import com.tao.android.ai_ad_recommendation.data.repository.BehaviorRepository;
 import com.tao.android.ai_ad_recommendation.model.AdItem;
+import com.tao.android.ai_ad_recommendation.ui.component.InteractionBar;
+import com.tao.android.ai_ad_recommendation.ui.component.VideoPlayerView;
 import com.tao.android.ai_ad_recommendation.viewmodel.MainFeedViewModel;
 
 import java.util.List;
@@ -40,7 +45,7 @@ import java.util.List;
  */
 public class MainFeedFragment extends Fragment {
 
-    private MainFeedViewModel viewModel;
+    MainFeedViewModel viewModel;
     private AdFeedAdapter adapter;
 
     private TabLayout tabLayout;
@@ -64,10 +69,14 @@ public class MainFeedFragment extends Fragment {
         swipeRefresh = view.findViewById(R.id.swipe_refresh);
         recyclerView = view.findViewById(R.id.recycler_view);
 
-        // 搜索框：点击弹出搜索弹窗（不直接输入，用SearchDialogFragment）
+        // 搜索框：点击弹出搜索弹窗
         EditText searchBox = view.findViewById(R.id.search_box);
         searchBox.setOnClickListener(v -> {
             SearchDialogFragment dialog = new SearchDialogFragment();
+            // 直接传数据，不走parentFragment（因为用的是Activity的FragmentManager）
+            if (viewModel.adList.getValue() != null) {
+                dialog.setAllAds(viewModel.adList.getValue());
+            }
             dialog.show(getParentFragmentManager(), "SearchDialog");
         });
 
@@ -89,7 +98,9 @@ public class MainFeedFragment extends Fragment {
 
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter=new AdFeedAdapter();
+        BehaviorRepository behaviorRopo=new BehaviorRepository(
+                ((AiAdApplication)requireActivity().getApplication()).getDatabase().behaviorDao());
+        adapter=new AdFeedAdapter(behaviorRopo);
         recyclerView.setAdapter(adapter);
 
         // ====== 第四步：设置Tab切换 ======
@@ -143,14 +154,31 @@ public class MainFeedFragment extends Fragment {
         // })
 
 
+        // 埋点：记录已曝光过的广告ID（避免重复计数）
+        java.util.Set<String> impressedIds = new java.util.HashSet<>();
+
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView rv, int dx, int dy) {
-                LinearLayoutManager lm = (LinearLayoutManager)
-                        rv.getLayoutManager();
-                if (lm != null && lm.findLastVisibleItemPosition() >=
-                        adapter.getItemCount() - 2) {
+                LinearLayoutManager lm = (LinearLayoutManager) rv.getLayoutManager();
+                if (lm == null) return;
+
+                // 无限滚动
+                if (lm.findLastVisibleItemPosition() >= adapter.getItemCount() - 2) {
                     viewModel.loadNextPage();
+                }
+
+                // 曝光埋点：当前可见的卡片记录曝光
+                int firstVisible = lm.findFirstVisibleItemPosition();
+                int lastVisible = lm.findLastVisibleItemPosition();
+                if (adapter.behaviorRepo != null && adapter.adList != null) {
+                    for (int i = firstVisible; i <= lastVisible && i < adapter.adList.size(); i++) {
+                        String id = adapter.adList.get(i).getId();
+                        if (!impressedIds.contains(id)) {
+                            impressedIds.add(id);
+                            adapter.behaviorRepo.recordImpression(id);
+                        }
+                    }
                 }
             }
         });
@@ -166,8 +194,6 @@ public class MainFeedFragment extends Fragment {
         //
         // viewModel.isLoading.observe(...)  // 控制loading提示
         // viewModel.hasMore.observe(...)    // 控制"没有更多了"
-
-
 
 
         // ====== 第八步：加载首页数据 ======
@@ -191,9 +217,14 @@ public class MainFeedFragment extends Fragment {
      * 3. 点击事件 → 跳转到 DetailActivity
      * 4. Glide 加载图片到 ImageView
      */
-    private static class AdFeedAdapter extends RecyclerView.Adapter<AdFeedAdapter.ViewHolder> {
+    private  class AdFeedAdapter extends RecyclerView.Adapter<AdFeedAdapter.ViewHolder> {
 
-        private List<AdItem> adList;
+        List<AdItem> adList;
+        final BehaviorRepository behaviorRepo;
+
+        private AdFeedAdapter(BehaviorRepository behaviorRepo) {
+            this.behaviorRepo = behaviorRepo;
+        }
 
         public void setData(List<AdItem> ads) {
             this.adList = ads;
@@ -204,7 +235,14 @@ public class MainFeedFragment extends Fragment {
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             // TODO: 【你来写-中等】根据viewType加载不同item布局
             // 用 LayoutInflater.from(parent.getContext()).inflate(...)
-            View view=LayoutInflater.from(parent.getContext()).inflate(R.layout.view_ad_card,parent,false);
+
+            int layoutId;
+            if (viewType==1){
+                layoutId=R.layout.item_ad_small_image;
+            }else {
+                layoutId=R.layout.view_ad_card;
+            }
+            View view=LayoutInflater.from(parent.getContext()).inflate(layoutId,parent,false);
             return new ViewHolder(view);
         }
 
@@ -219,10 +257,99 @@ public class MainFeedFragment extends Fragment {
             holder.descriptionView.setText(item.getDescription());
             holder.advertiserView.setText(item.getAdvertiser());
 
-            // 💡 知识点：不需要网络图片，用分类颜色+叠加文字区分每个广告
+            // 色块颜色
             int bgColor = getCategoryColor(item.getCategory());
             holder.bannerContainer.getBackground().setTint(bgColor);
             holder.categoryBannerText.setText(item.getTitle());
+
+            // ─── 三种样式：大图/小图/视频 ───
+            String adType = item.getType();
+            if ("video".equals(adType)) {
+                // 视频卡片：不创建ExoPlayer（防闪），显示色块+▶按钮，点击跳详情页全屏有声播放
+                if (holder.videoPlayerView != null) holder.videoPlayerView.setVisibility(View.GONE);
+                if (holder.videoPlayButton != null) {
+                    holder.videoPlayButton.setVisibility(View.VISIBLE);
+                    holder.videoPlayButton.setOnClickListener(v -> {
+                        Intent intent = new Intent(v.getContext(), DetailActivity.class);
+                        intent.putExtra("ad_item", item);
+                        intent.putExtra("auto_play", true);
+                        v.getContext().startActivity(intent);
+                    });
+                }
+                holder.categoryBannerText.setText("▶ " + item.getTitle());
+                // 色块用深色背景表示视频卡片
+                holder.bannerContainer.getBackground().setTint(0xFF4A4A5A);
+            } else {
+                if (holder.videoPlayerView != null) holder.videoPlayerView.setVisibility(View.GONE);
+                if (holder.videoPlayButton != null) holder.videoPlayButton.setVisibility(View.GONE);
+            }
+
+            // AI摘要
+            if (item.getSummary() != null && !item.getSummary().isEmpty()) {
+                holder.cardSummaryView.setText(item.getSummary());
+                holder.cardSummaryView.setVisibility(View.VISIBLE);
+            } else {
+                holder.cardSummaryView.setVisibility(View.GONE);
+            }
+
+            // 标签
+            holder.tagsContainer.removeAllViews();
+            for (String tag : item.getTags().split(",")) {
+                String t = tag.trim();
+                if (!t.isEmpty()) {
+                    TextView chip = new TextView(holder.itemView.getContext());
+                    chip.setText(t);
+                    chip.setTextColor(0xFF999999);
+                    chip.setTextSize(11);
+                    chip.setBackgroundResource(R.drawable.bg_tag_rounded);
+                    chip.setPadding(16, 4, 16, 4);
+                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    lp.setMarginEnd(8);
+                    lp.bottomMargin = 4;
+                    chip.setLayoutParams(lp);
+                    holder.tagsContainer.addView(chip);
+                }
+            }
+
+            String adId = item.getId();
+            behaviorRepo.getLikeCount(adId).observe(getViewLifecycleOwner(), likeCount -> {
+                if (likeCount !=null) {
+                    holder.interactionBar.setLiked(likeCount>0,likeCount);
+                }
+            });
+
+            behaviorRepo.getFavoriteCount(adId).observe(getViewLifecycleOwner(), favoriteCount -> {
+                if (favoriteCount !=null) {
+                    holder.interactionBar.setFavorited(favoriteCount>0,favoriteCount);
+                }
+            });
+
+            behaviorRepo.getComments(adId).observe(getViewLifecycleOwner(), comments -> {
+                if (comments != null) {
+                    holder.interactionBar.setCommentCount(comments.size());
+                }
+            });
+
+            holder.interactionBar.setOnInteractionListener(new InteractionBar.OnInteractionListener() {
+
+                @Override
+                public void onLikeClick() {
+                    behaviorRepo.toggleLike(adId,isActive -> {});
+                }
+
+                @Override
+                public void onFavoriteClick() {
+                    behaviorRepo.toggleFavorite(adId,isActive -> {});
+                }
+
+                @Override
+                public void onCommentClick() {
+                    Intent intent = new Intent(holder.itemView.getContext(), DetailActivity.class);
+                    intent.putExtra("ad_item", item);
+                    holder.itemView.getContext().startActivity(intent);
+                }
+            });
 
 
             holder.itemView.setOnClickListener(v -> {
@@ -255,25 +382,41 @@ public class MainFeedFragment extends Fragment {
         public int getItemViewType(int position) {
             // TODO: 【你来写-中等】根据 adList.get(position).getType() 返回不同type值
 //            只用手机端
-            return 0;
+            AdItem item = adList.get(position);
+            switch (item.getType()) {          // ← 是 getType() 不是 getCategory()！
+                case "large_image": return 0;
+                case "small_image": return 1;
+                case "video":       return 2;
+                default:            return 0;
+            }
         }
 
-        static class ViewHolder extends RecyclerView.ViewHolder {
+         class ViewHolder extends RecyclerView.ViewHolder {
             // TODO: 【你来写-简单】在构造方法中 findViewById 绑定子控件
             // 标题、描述、图片、视频播放器、标签、互动按钮等
             ImageView mainImageView;
-            FrameLayout bannerContainer;   // 色块容器（有顶部圆角）
-            TextView categoryBannerText;   // 色块上叠加的标题
-            TextView titleView,descriptionView,advertiserView;
+            FrameLayout bannerContainer;
+            TextView categoryBannerText, cardSummaryView;
+            TextView titleView, descriptionView, advertiserView;
+            LinearLayout tagsContainer;
+            InteractionBar interactionBar;
+            ImageView videoPlayButton;
+            VideoPlayerView videoPlayerView;
+            String lastSetupUrl; // 防重复初始化导致闪烁
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
-                mainImageView=itemView.findViewById(R.id.card_image);
-                bannerContainer=itemView.findViewById(R.id.card_media_container);
-                categoryBannerText=itemView.findViewById(R.id.card_banner_text);
-                titleView=itemView.findViewById(R.id.card_title);
-                descriptionView=itemView.findViewById(R.id.card_description);
-                advertiserView=itemView.findViewById(R.id.card_advertiser);
+                mainImageView = itemView.findViewById(R.id.card_image);
+                bannerContainer = itemView.findViewById(R.id.card_media_container);
+                categoryBannerText = itemView.findViewById(R.id.card_banner_text);
+                titleView = itemView.findViewById(R.id.card_title);
+                descriptionView = itemView.findViewById(R.id.card_description);
+                advertiserView = itemView.findViewById(R.id.card_advertiser);
+                cardSummaryView = descriptionView;
+                tagsContainer = itemView.findViewById(R.id.card_tags_container);
+                interactionBar = itemView.findViewById(R.id.card_interaction_bar);
+                videoPlayButton = itemView.findViewById(R.id.card_video_play_btn);
+                videoPlayerView = itemView.findViewById(R.id.card_video_player);
             }
         }
     }

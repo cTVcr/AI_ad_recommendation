@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- AI对话中的广告推荐卡片 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="vertical" android:background="@drawable/bg_bubble_ai"
+    android:padding="10dp" android:layout_marginTop="6dp"
+    android:clickable="true" android:focusable="true">
+    <TextView android:id="@+id/chat_ad_title" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:textColor="#333333"
+        android:textSize="14sp" android:textStyle="bold" android:maxLines="2" />
+    <TextView android:id="@+id/chat_ad_tags" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:textColor="#999999"
+        android:textSize="12sp" android:layout_marginTop="4dp" />
+</LinearLayout>

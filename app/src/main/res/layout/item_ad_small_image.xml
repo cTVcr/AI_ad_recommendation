@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 小图模式卡片：左边色块 + 右边文字，ID与大图统一 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@drawable/bg_card_rounded"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    android:elevation="1dp"
+    android:padding="12dp"
+    android:clickable="true"
+    android:focusable="true">
+
+    <FrameLayout
+        android:id="@+id/card_media_container"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:background="@drawable/bg_card_top_rounded">
+
+        <TextView
+            android:id="@+id/card_banner_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="标题"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:padding="8dp"
+            android:maxLines="2"
+            android:shadowColor="#40000000"
+            android:shadowRadius="4" />
+    </FrameLayout>
+
+    <ImageView
+        android:id="@+id/card_video_play_btn"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:paddingLeft="12dp">
+
+        <TextView
+            android:id="@+id/card_advertiser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="广告主"
+            android:textColor="#AAAAAA"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/card_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="广告标题"
+            android:textColor="#333333"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:layout_marginTop="4dp"
+            android:maxLines="2" />
+
+        <TextView
+            android:id="@+id/card_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="AI摘要..."
+            android:textColor="#999999"
+            android:textSize="12sp"
+            android:layout_marginTop="4dp"
+            android:maxLines="2" />
+
+        <LinearLayout
+            android:id="@+id/card_tags_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="6dp" />
+
+        <com.tao.android.ai_ad_recommendation.ui.component.InteractionBar
+            android:id="@+id/card_interaction_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp" />
+    </LinearLayout>
+
+</LinearLayout>

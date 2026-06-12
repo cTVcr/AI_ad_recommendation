@@ -12,6 +12,8 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:label="@string/app_name"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AI_ad_recommendation"
         tools:targetApi="34">
@@ -35,12 +37,13 @@
             android:label="@string/app_name"
             android:theme="@style/Theme.AI_ad_recommendation" />
 
-        <!-- 详情页 -->
+        <!-- 详情页（支持全屏旋转不重建） -->
         <activity
             android:name=".ui.screen.DetailActivity"
             android:exported="false"
             android:label="广告详情"
-            android:theme="@style/Theme.AI_ad_recommendation" />
+            android:theme="@style/Theme.AI_ad_recommendation"
+            android:configChanges="orientation|screenSize|keyboardHidden" />
 
     </application>
 </manifest>

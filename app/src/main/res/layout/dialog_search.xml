@@ -1,55 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 对话式广告助手 - 微信聊天风格 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@drawable/bg_search_dialog"
-    android:padding="16dp"
-    android:minHeight="400dp">
+    android:background="#F0F0F0">
 
-    <!-- 搜索标题 -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="🔍 对话式搜索"
-        android:textColor="@color/black"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="12dp" />
-
-    <!-- 搜索输入框 -->
-    <EditText
-        android:id="@+id/search_input"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:hint="试试说：想看性价比高的科技产品"
-        android:inputType="text"
-        android:paddingHorizontal="12dp"
-        android:background="@drawable/bg_search_input"
-        android:textSize="14sp" />
-
-    <!-- 热门标签 -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="热门标签："
-        android:textColor="@color/text_gray"
-        android:textSize="13sp"
-        android:layout_marginTop="12dp" />
-
+    <!-- 顶部标题栏 -->
     <LinearLayout
-        android:id="@+id/search_tags_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="4dp" />
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="14dp"
+        android:background="#FFFFFF"
+        android:elevation="1dp">
 
-    <!-- 搜索结果列表 -->
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:text="AI 广告助手" android:textColor="#333333"
+            android:textSize="16sp" android:textStyle="bold" />
+        <TextView android:id="@+id/search_close" android:layout_width="30dp"
+            android:layout_height="30dp" android:gravity="center" android:text="X"
+            android:textColor="#999999" android:textSize="16sp" android:clickable="true" />
+    </LinearLayout>
+
+    <!-- 聊天消息 -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/search_results"
+        android:id="@+id/search_chat_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="12dp" />
+        android:padding="10dp"
+        android:clipToPadding="false" />
 
+    <!-- 底部输入 -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="52dp"
+        android:gravity="center_vertical" android:padding="8dp"
+        android:background="#FFFFFF" android:elevation="2dp"
+        android:orientation="horizontal">
+
+        <EditText android:id="@+id/search_input" android:layout_width="0dp"
+            android:layout_height="38dp" android:layout_weight="1" android:hint="说点什么..."
+            android:inputType="text" android:paddingHorizontal="12dp"
+            android:background="@drawable/bg_search_input" android:textSize="14sp"
+            android:textColor="#333333" android:textColorHint="#AAAAAA"
+            android:imeOptions="actionSend" android:maxLines="2" />
+
+        <TextView android:id="@+id/search_send" android:layout_width="48dp"
+            android:layout_height="38dp" android:layout_marginStart="6dp"
+            android:gravity="center" android:text="发送" android:textColor="#FF6B6B"
+            android:textSize="14sp" android:textStyle="bold"
+            android:clickable="true" android:focusable="true" />
+    </LinearLayout>
 </LinearLayout>

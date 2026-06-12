@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 用户消息气泡 - 右对齐，粉底色 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:gravity="end" android:paddingVertical="5dp">
+    <TextView android:id="@+id/chat_bubble_text"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="你好" android:textColor="#FFFFFF" android:textSize="15sp"
+        android:background="@drawable/bg_bubble_user" android:padding="10dp"
+        android:maxWidth="260dp" android:maxEms="20" android:textColorHint="#FFFFFF" />
+</LinearLayout>

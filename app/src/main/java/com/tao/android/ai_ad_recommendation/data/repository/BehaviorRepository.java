@@ -50,23 +50,17 @@ public class BehaviorRepository {
     // TODO: 【你来写-中等】实现这个方法
     public void toggleLike(String adId, OnToggleCallback callback) {
         executor.execute(() -> {
-            // ====== 你的代码从这里开始 ======
-            // 1. TODO 查询behaviors表：adId+BEHAVIOR_LIKE 是否存在
-            // 2. TODO 如果存在 → deleteBehavior()，callback(false)
-            // 3. TODO 如果不存在 → insertBehavior(new UserBehavior(...))，callback(true)
-            executor.execute(() -> {
-                UserBehavior existing = behaviorDao.getBehaviorSync(adId, Constants.BEHAVIOR_LIKE);
-                if (existing==null) {
-                    behaviorDao.deleteBehavior(existing);
-                    callback.onResult(false);
-
-                }else {
-                    UserBehavior like = new UserBehavior(adId, Constants.BEHAVIOR_LIKE, null, System.currentTimeMillis());
-                    behaviorDao.insertBehavior(like);
-                    callback.onResult(true);
-                }
-            });
-            // ====== 你的代码到这里结束 ======
+            UserBehavior existing = behaviorDao.getBehaviorSync(adId, Constants.BEHAVIOR_LIKE);
+            if (existing != null) {
+                // 已有点赞 → 取消
+                behaviorDao.deleteBehavior(existing);
+                callback.onResult(false);
+            } else {
+                // 没有点赞 → 点赞
+                UserBehavior like = new UserBehavior(adId, Constants.BEHAVIOR_LIKE, null, System.currentTimeMillis());
+                behaviorDao.insertBehavior(like);
+                callback.onResult(true);
+            }
         });
     }
 
@@ -123,6 +117,34 @@ public class BehaviorRepository {
     /** 获取所有评论 */
     public LiveData<List<UserBehavior>> getComments(String adId) {
         return behaviorDao.getComments(adId);
+    }
+
+    // ─── 埋点统计 ───
+
+    /** 记录曝光（卡片进入可见区域时调用） */
+    public void recordImpression(String adId) {
+        executor.execute(() -> {
+            UserBehavior impression = new UserBehavior(adId, Constants.BEHAVIOR_IMPRESSION, null, System.currentTimeMillis());
+            behaviorDao.insertBehavior(impression);
+        });
+    }
+
+    /** 记录点击 */
+    public void recordClick(String adId) {
+        executor.execute(() -> {
+            UserBehavior click = new UserBehavior(adId, Constants.BEHAVIOR_CLICK, null, System.currentTimeMillis());
+            behaviorDao.insertBehavior(click);
+        });
+    }
+
+    /** 获取曝光数 */
+    public LiveData<Integer> getImpressionCount(String adId) {
+        return behaviorDao.getBehaviorCount(adId, Constants.BEHAVIOR_IMPRESSION);
+    }
+
+    /** 获取点击数 */
+    public LiveData<Integer> getClickCount(String adId) {
+        return behaviorDao.getBehaviorCount(adId, Constants.BEHAVIOR_CLICK);
     }
 
     /**

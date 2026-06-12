@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 启动页 — AI广告推荐 逐字跳跃入场动画 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F9F6F0"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <!-- 顶部图标区（一个圆形色块 + emoji） -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:layout_marginBottom="36dp">
+
+        <TextView
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:background="@drawable/bg_splash_icon"
+            android:gravity="center"
+            android:text="📢"
+            android:textSize="44sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="AI 广告推荐"
+            android:textColor="#FF6B6B"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.1" />
+    </LinearLayout>
+
+    <!-- 6 个字逐字跳动 -->
+    <LinearLayout
+        android:id="@+id/ll_letters"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView android:id="@+id/tv_letter_0" style="@style/SplashLetter" android:text="让" />
+        <TextView android:id="@+id/tv_letter_1" style="@style/SplashLetter" android:text="广" />
+        <TextView android:id="@+id/tv_letter_2" style="@style/SplashLetter" android:text="告" />
+        <TextView android:id="@+id/tv_letter_3" style="@style/SplashLetter" android:text="更" />
+        <TextView android:id="@+id/tv_letter_4" style="@style/SplashLetter" android:text="懂" />
+        <TextView android:id="@+id/tv_letter_5" style="@style/SplashLetter" android:text="你" />
+
+    </LinearLayout>
+
+</LinearLayout>

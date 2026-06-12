@@ -43,6 +43,9 @@ public class DetailViewModel extends ViewModel {
     /** 评论列表 */
     public MutableLiveData<List<UserBehavior>> comments = new MutableLiveData<>();
 
+    /** 评论数 */
+    public MutableLiveData<Integer> commentCount = new MutableLiveData<>(0);
+
     /** Toast提示信息 */
     public MutableLiveData<String> toastMessage = new MutableLiveData<>();
 
@@ -60,15 +63,26 @@ public class DetailViewModel extends ViewModel {
         loadInteractionData(ad.getId());
     }
 
-    /** 加载互动数据 */
+    /** 加载互动数据（数量 + 是否已点赞/收藏的状态） */
     private void loadInteractionData(String adId) {
-        // 观察 Room 数据库，数据自动更新
-        behaviorRepository.getLikeCount(adId).observeForever(count ->
-            likeCount.setValue(count));
-        behaviorRepository.getFavoriteCount(adId).observeForever(count ->
-            favoriteCount.setValue(count));
-        behaviorRepository.getComments(adId).observeForever(list ->
-            comments.setValue(list));
+        // 点赞数 → 同时判断是否已点赞
+        behaviorRepository.getLikeCount(adId).observeForever(count -> {
+            likeCount.setValue(count);
+            isLiked.setValue(count != null && count > 0);
+        });
+        // 收藏数 → 同时判断是否已收藏
+        behaviorRepository.getFavoriteCount(adId).observeForever(count -> {
+            favoriteCount.setValue(count);
+            isFavorited.setValue(count != null && count > 0);
+        });
+        // 评论列表 → 列表 + 数量
+        behaviorRepository.getComments(adId).observeForever(list -> {
+            comments.setValue(list);
+            commentCount.setValue(list != null ? list.size() : 0);
+        });
+        //埋点统计
+        behaviorRepository.getImpressionCount(adId).observeForever(count -> {});
+        behaviorRepository.getClickCount(adId).observeForever(count -> {});
     }
 
     /**
@@ -88,8 +102,10 @@ public class DetailViewModel extends ViewModel {
         AdItem ad=currentAd.getValue();
         if (ad==null) return;
 
-
-
+        behaviorRepository.toggleLike(ad.getId(),isActive -> {
+            isLiked.postValue(isActive);
+            toastMessage.postValue(isActive ?"\"❤ 已点赞\"":"已取消点赞");
+        });
     }
 
     /**
@@ -101,6 +117,13 @@ public class DetailViewModel extends ViewModel {
     // TODO: 【你来写-中等】
     public void toggleFavorite() {
         // ====== 你的代码 ======
+        AdItem ad=currentAd.getValue();
+        if (ad==null) return;
+
+        behaviorRepository.toggleFavorite(ad.getId(),isActive -> {
+            isFavorited.postValue(isActive);
+            toastMessage.postValue(isActive?"⭐  已收藏":"已取消收藏");
+        });
     }
 
     /**
@@ -112,5 +135,9 @@ public class DetailViewModel extends ViewModel {
     // TODO: 【你来写-中等】
     public void addComment(String commentText) {
         // ====== 你的代码 ======
+        AdItem ad=currentAd.getValue();
+        if (ad==null) return;
+        behaviorRepository.addComment(ad.getId(),commentText);
+        toastMessage.postValue("评论已发表");
     }
 }

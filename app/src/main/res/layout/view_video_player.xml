@@ -11,7 +11,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:use_controller="false"
-        app:surface_type="texture_view"
+        app:surface_type="surface_view"
+        app:resize_mode="fit"
         xmlns:app="http://schemas.android.com/apk/res-auto" />
 
     <!-- 中央播放/暂停按钮 -->

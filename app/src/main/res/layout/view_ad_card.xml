@@ -37,6 +37,17 @@
             android:shadowColor="#40000000"
             android:shadowRadius="4" />
 
+        <!-- 视频播放按钮（视频模式显示，大图/小图隐藏） -->
+        <ImageView
+            android:id="@+id/card_video_play_btn"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_play"
+            android:background="@drawable/bg_play_button"
+            android:padding="14dp"
+            android:visibility="gone" />
+
         <com.tao.android.ai_ad_recommendation.ui.component.VideoPlayerView
             android:id="@+id/card_video_player"
             android:layout_width="match_parent"

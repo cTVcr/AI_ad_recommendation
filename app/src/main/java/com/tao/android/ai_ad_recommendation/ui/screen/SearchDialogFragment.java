@@ -1,11 +1,14 @@
 package com.tao.android.ai_ad_recommendation.ui.screen;
 
-import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,41 +18,29 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.tao.android.ai_ad_recommendation.R;
-import com.tao.android.ai_ad_recommendation.ai.MockAiService;
 import com.tao.android.ai_ad_recommendation.model.AdItem;
+import com.tao.android.ai_ad_recommendation.model.ChatMessage;
 import com.tao.android.ai_ad_recommendation.viewmodel.SearchViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 对话式搜索弹窗 - 底部弹出，类似抖音的搜索
+ * 对话式广告推荐 — 微信聊天风格
  *
- * 💡 知识点：BottomSheetDialogFragment 是一个从底部滑出的Dialog
- *         比普通Dialog体验更好，常见于搜索场景
- *
- * 🔗 被打开：MainFeedFragment（点击搜索按钮时）
- * 🔗 复用组件：TagChipView（标签展示）
- *
- * ====== 框架说明 ======
- * 框架已搭建。搜索输入监听、结果展示、标签筛选需要你来写。
+ * API接入点: SearchViewModel.callAiApi() 预留了注释框架
+ * 接入后把 ViewModel 里的 MockAiService 替换为 Retrofit 调用即可
  */
 public class SearchDialogFragment extends BottomSheetDialogFragment {
 
     private SearchViewModel viewModel;
-    private EditText searchInput;
-    private RecyclerView resultRecyclerView;
-    private SearchResultAdapter adapter;
+    private EditText input;
+    private RecyclerView chatList;
+    private ChatAdapter adapter;
+    private List<AdItem> allAds;
 
-    @NonNull
-    @Override
-    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        return super.onCreateDialog(savedInstanceState);
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
+    @Nullable @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.dialog_search, container, false);
     }
@@ -58,89 +49,126 @@ public class SearchDialogFragment extends BottomSheetDialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // ====== 第1步：绑定控件 ======
-        searchInput = view.findViewById(R.id.search_input);
-        resultRecyclerView = view.findViewById(R.id.search_results);
+        input = view.findViewById(R.id.search_input);
+        TextView sendBtn = view.findViewById(R.id.search_send);
+        chatList = view.findViewById(R.id.search_chat_list);
+        view.findViewById(R.id.search_close).setOnClickListener(v -> dismiss());
 
-        // ====== 第2步：创建ViewModel ======
-        SearchViewModelFactory factory = new SearchViewModelFactory(new MockAiService());
-        viewModel = new ViewModelProvider(this, factory).get(SearchViewModel.class);
+        chatList.setLayoutManager(new LinearLayoutManager(getContext()));
+        adapter = new ChatAdapter();
+        chatList.setAdapter(adapter);
 
-        // ====== 第3步：设置搜索结果列表 ======
-        resultRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        viewModel = new ViewModelProvider(this).get(SearchViewModel.class);
+        viewModel.init(allAds != null ? allAds : new ArrayList<>());
 
-        // TODO: 【你来写-中等】setupSearchInput()
-        //
-        // 思路：
-        // 1. searchInput.addTextChangedListener 监听文字变化
-        // 2. 用户输入后延迟300ms再搜索（防抖，避免每敲一个字都搜）
-        //    💡 知识点：防抖(Debounce) = 用户停止输入后再执行搜索
-        //    用 Handler + postDelayed 实现
-        // 3. 调用 viewModel.doSearch(inputText)
+        // 观察对话历史 → 刷新聊天列表（延迟滚动避免和RecyclerView布局冲突）
+        final android.os.Handler h = new android.os.Handler();
+        viewModel.chatHistory.observe(this, msgs -> {
+            adapter.setMessages(msgs);
+            h.postDelayed(() -> {
+                if (adapter.getItemCount() > 0)
+                    chatList.smoothScrollToPosition(adapter.getItemCount() - 1);
+            }, 100);
+        });
 
-        // TODO: 【你来写-中等】setupTagFilter()
-        //
-        // 思路：
-        // 1. 展示一组热门标签（从viewModel获取或预设）
-        // 2. 标签点击 → viewModel.filterByTag(tag)
-        // 3. 复用 TagChipView 组件展示标签
-
-        // TODO: 【你来写-中等】observeResults()
-        //
-        // 思路：
-        // viewModel.searchResults.observe(this, results -> {
-        //     adapter = new SearchResultAdapter(results);
-        //     resultRecyclerView.setAdapter(adapter);
-        // })
+        // 发送
+        View.OnClickListener onSend = v -> {
+            String text = input.getText().toString().trim();
+            if (!text.isEmpty()) {
+                viewModel.sendMessage(text);
+                input.setText("");
+            }
+        };
+        sendBtn.setOnClickListener(onSend);
+        input.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEND) { onSend.onClick(v); return true; }
+            return false;
+        });
     }
 
-    /**
-     * 搜索结果 Adapter
-     *
-     * TODO: 【你来写-中等】SearchResultAdapter
-     * 显示搜索匹配的广告卡片（用小图模式即可，不需要视频）
-     */
-    private static class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapter.ViewHolder> {
+    public void setAllAds(List<AdItem> ads) { this.allAds = ads; }
 
-        private List<AdItem> results;
+    // ═══════════════════════════════════════════
+    // 聊天 Adapter
+    // ═══════════════════════════════════════════
+    private static class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+        private static final int TYPE_USER = 1;
+        private static final int TYPE_AI_TEXT = 2;
+        private static final int TYPE_AI_ADS = 3;
 
-        public SearchResultAdapter(List<AdItem> results) {
-            this.results = results;
-        }
+        private List<ChatMessage> messages = new ArrayList<>();
 
-        @NonNull
-        @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            // TODO: 【你来写-简单】加载小图卡片布局
-            return null;
+        void setMessages(List<ChatMessage> msgs) {
+            this.messages = msgs != null ? msgs : new ArrayList<>();
+            notifyDataSetChanged();
         }
 
         @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            // TODO: 【你来写-中等】绑定数据
+        public int getItemViewType(int pos) {
+            ChatMessage msg = messages.get(pos);
+            if (ChatMessage.ROLE_USER.equals(msg.getRole())) return TYPE_USER;
+            if (msg.getAdResults() != null && !msg.getAdResults().isEmpty()) return TYPE_AI_ADS;
+            return TYPE_AI_TEXT;
+        }
+
+        @NonNull @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup p, int type) {
+            LayoutInflater inf = LayoutInflater.from(p.getContext());
+            if (type == TYPE_USER)
+                return new BubbleVH(inf.inflate(R.layout.item_chat_user, p, false));
+            else
+                return new AiVH(inf.inflate(R.layout.item_chat_ai, p, false));
         }
 
         @Override
-        public int getItemCount() {
-            return results != null ? results.size() : 0;
-        }
-
-        static class ViewHolder extends RecyclerView.ViewHolder {
-            public ViewHolder(@NonNull View itemView) {
-                super(itemView);
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder h, int pos) {
+            ChatMessage msg = messages.get(pos);
+            if (h instanceof BubbleVH) {
+                ((BubbleVH) h).textView.setText(msg.getText());
+            } else if (h instanceof AiVH) {
+                AiVH vh = (AiVH) h;
+                vh.textView.setText(msg.getText());
+                List<AdItem> ads = msg.getAdResults();
+                vh.adCards.removeAllViews();
+                if (ads != null && !ads.isEmpty()) {
+                    vh.adCards.setVisibility(View.VISIBLE);
+                    for (AdItem ad : ads) {
+                        View card = LayoutInflater.from(vh.itemView.getContext())
+                                .inflate(R.layout.item_chat_ad_card, vh.adCards, false);
+                        TextView title = card.findViewById(R.id.chat_ad_title);
+                        TextView tags = card.findViewById(R.id.chat_ad_tags);
+                        title.setText(ad.getTitle());
+                        tags.setText(ad.getTags().replace(",", "  "));
+                        card.setOnClickListener(cc -> {
+                            Intent i = new Intent(cc.getContext(), DetailActivity.class);
+                            i.putExtra("ad_item", ad);
+                            cc.getContext().startActivity(i);
+                        });
+                        vh.adCards.addView(card);
+                    }
+                } else {
+                    vh.adCards.setVisibility(View.GONE);
+                }
             }
         }
+
+        @Override public int getItemCount() { return messages.size(); }
     }
 
-    /** ViewModel工厂 */
-    static class SearchViewModelFactory implements ViewModelProvider.Factory {
-        private final MockAiService aiService;
-        SearchViewModelFactory(MockAiService aiService) { this.aiService = aiService; }
+    // 纯文字气泡
+    static class BubbleVH extends RecyclerView.ViewHolder {
+        TextView textView;
+        BubbleVH(@NonNull View v) { super(v); textView = v.findViewById(R.id.chat_bubble_text); }
+    }
 
-        @NonNull
-        @Override
-        public <T extends androidx.lifecycle.ViewModel> T create(@NonNull Class<T> modelClass) {
-            return (T) new SearchViewModel(aiService);
+    // AI气泡 + 广告卡片
+    static class AiVH extends RecyclerView.ViewHolder {
+        TextView textView;
+        LinearLayout adCards;
+        AiVH(@NonNull View v) {
+            super(v);
+            textView = v.findViewById(R.id.chat_bubble_text);
+            adCards = v.findViewById(R.id.chat_ai_ad_cards);
         }
     }
 }

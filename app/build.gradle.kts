@@ -76,6 +76,7 @@ dependencies {
     // ExoPlayer 视频播放
     implementation("androidx.media3:media3-exoplayer:1.6.1")
     implementation("androidx.media3:media3-ui:1.6.1")
+    implementation("androidx.media3:media3-datasource-okhttp:1.6.1")  // 缓存支持
 
     // Gson JSON解析
     implementation("com.google.code.gson:gson:2.11.0")

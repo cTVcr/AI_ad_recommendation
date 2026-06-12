@@ -45,6 +45,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:visibility="gone" />
+
+            <!-- 静音切换按钮（左上角，不挡控制栏） -->
+            <ImageView
+                android:id="@+id/detail_mute_btn"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="top|start"
+                android:layout_margin="10dp"
+                android:src="@drawable/ic_volume_on"
+                android:background="@drawable/bg_play_button"
+                android:padding="8dp"
+                android:visibility="gone" />
         </FrameLayout>
 
         <!-- 信息卡片（白底圆角） -->
@@ -102,8 +114,9 @@
                 android:layout_marginTop="12dp" />
         </LinearLayout>
 
-        <!-- AI深度分析卡片 -->
+        <!-- 评论卡片 -->
         <LinearLayout
+            android:id="@+id/detail_comments_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -116,10 +129,76 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="🤖 AI 深度分析"
+                android:text="💬 最新评论"
                 android:textColor="#333333"
                 android:textSize="16sp"
                 android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/detail_comments_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="10dp" />
+
+            <TextView
+                android:id="@+id/detail_comments_empty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="暂无评论，来说两句吧"
+                android:textColor="#CCCCCC"
+                android:textSize="13sp"
+                android:gravity="center"
+                android:padding="16dp" />
+        </LinearLayout>
+
+        <!-- AI深度分析卡片 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_card_rounded"
+            android:padding="18dp"
+            android:elevation="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="🤖 AI 深度分析"
+                    android:textColor="#333333"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/detail_ai_refresh"
+                    android:layout_width="wrap_content"
+                    android:layout_height="28dp"
+                    android:gravity="center"
+                    android:text="⟳ 换一个"
+                    android:textColor="#FF6B6B"
+                    android:textSize="12sp"
+                    android:paddingHorizontal="10dp"
+                    android:background="@drawable/bg_tag_rounded"
+                    android:clickable="true"
+                    android:focusable="true" />
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/detail_ai_progress"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginTop="8dp"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/detail_ai_analysis"

@@ -79,16 +79,23 @@ public class InteractionBar extends LinearLayout {
             // 2. 切换 isLiked 状态
             // 3. 更新图标（红心↔空心）
             // 4. 回调 listener.onLikeClick()
+            animateHeart();
+            if (listener != null)
+                listener.onLikeClick();
         });
 
         favoriteIcon.setOnClickListener(v -> {
             // TODO: 【你来写-中等】收藏点击
             // 同上逻辑
+            if (listener != null)
+                listener.onFavoriteClick();
         });
 
         commentIcon.setOnClickListener(v -> {
             // TODO: 【你来写-简单】评论点击
             // 回调 listener.onCommentClick()
+            if (listener != null)
+                listener.onCommentClick();
         });
     }
 

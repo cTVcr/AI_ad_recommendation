@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- AI消息气泡 - 左对齐，白底 + 可选广告卡片列表 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="vertical" android:paddingVertical="5dp">
+
+    <TextView android:id="@+id/chat_bubble_text"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="AI回复" android:textColor="#333333" android:textSize="15sp"
+        android:background="#FFFFFF" android:padding="10dp"
+        android:maxWidth="300dp" android:maxEms="26" android:lineSpacingExtra="3dp" />
+
+    <LinearLayout android:id="@+id/chat_ai_ad_cards"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:layout_marginTop="6dp"
+        android:paddingStart="4dp" android:visibility="gone" />
+
+</LinearLayout>
