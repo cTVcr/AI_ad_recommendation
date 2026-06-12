@@ -16,7 +16,7 @@ import retrofit2.http.Url;
 public interface AiApiService {
 
     // ─── 在这里填你的 API 信息 ───
-    String API_KEY  = "sk-521a15508dfe4d5c8ec30ba35e71202c";
+    String API_KEY  = "sk-your-api-key-here"; // TODO: 替换为你的 API Key
     String API_URL  = "https://api.deepseek.com/v1/chat/completions";  // DeepSeek
     String MODEL    = "deepseek-chat";
 
