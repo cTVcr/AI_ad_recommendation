@@ -1,6 +1,6 @@
 package com.tao.android.ai_ad_recommendation.viewmodel;
 
-import androidx.lifecycle.LiveData;
+
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -68,14 +68,16 @@ public class DetailViewModel extends ViewModel {
         // 点赞数 → 同时判断是否已点赞
         behaviorRepository.getLikeCount(adId).observeForever(count -> {
             likeCount.setValue(count);
+
             isLiked.setValue(count != null && count > 0);
+
         });
-        // 收藏数 → 同时判断是否已收藏
+
         behaviorRepository.getFavoriteCount(adId).observeForever(count -> {
             favoriteCount.setValue(count);
             isFavorited.setValue(count != null && count > 0);
         });
-        // 评论列表 → 列表 + 数量
+
         behaviorRepository.getComments(adId).observeForever(list -> {
             comments.setValue(list);
             commentCount.setValue(list != null ? list.size() : 0);

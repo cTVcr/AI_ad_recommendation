@@ -15,7 +15,6 @@ import java.util.List;
  *
  * 💡 知识点：ViewModel 的生命周期比 Activity/Fragment 长
  *         屏幕旋转不会销毁ViewModel，数据不会丢失！
- *         ← 这解决了课件二中 onSaveInstanceState 的痛点
  *
  * 🔗 被使用：MainFeedFragment（观察LiveData，驱动UI刷新）
  *
@@ -27,7 +26,7 @@ public class MainFeedViewModel extends ViewModel {
 
     private final AdRepository repository;
 
-    // ====== 状态变量（UI观察这些LiveData） ======
+
 
     /** 当前显示的广告列表 */
     public MutableLiveData<List<AdItem>> adList = new MutableLiveData<>(new ArrayList<>());
@@ -104,9 +103,13 @@ public class MainFeedViewModel extends ViewModel {
         if (Boolean.TRUE.equals(isLoading.getValue())||Boolean.FALSE.equals(hasMore.getValue())) {
             return;
         }
+
         isLoading.setValue(true);
+
         int nextPage=currentPage.getValue()+1;
+
         List<AdItem> newData;
+
         String tab=currentTab.getValue();
 
         if ("推荐".equals(tab)) {
@@ -116,7 +119,7 @@ public class MainFeedViewModel extends ViewModel {
         }
 
         if (newData.isEmpty()) {
-            hasMore.setValue(false);//没有数据了
+            hasMore.setValue(false);
         }else {
             List<AdItem> merged=new ArrayList<>(adList.getValue());
             merged.addAll(newData);
@@ -125,6 +128,7 @@ public class MainFeedViewModel extends ViewModel {
         }
 
         isLoading.postValue(false);
+
         // ====== 你的代码到这里结束 ======
     }
 
@@ -144,6 +148,7 @@ public class MainFeedViewModel extends ViewModel {
     // TODO: 【你来写-中等】
     public void switchTab(String tab) {
         // ====== 你的代码从这里开始 ======
+
         currentTab.setValue(tab);
         isLoading.setValue(true);
 
@@ -161,6 +166,7 @@ public class MainFeedViewModel extends ViewModel {
         currentPage.setValue(0);
 
         hasMore.setValue(data.size()>= Constants.PAGE_SIZE);
+
         isLoading.postValue(false);
 
         // ====== 你的代码到这里结束 ======
@@ -187,7 +193,7 @@ public class MainFeedViewModel extends ViewModel {
         if ("推荐".equals(tab)) {
             newData = repository.refreshAds();
         } else {
-            // 先按分类加载，再随机打乱
+
             newData = repository.loadAdsByCategory(tab, 0);
             if (newData != null) {
                 java.util.Collections.shuffle(newData);

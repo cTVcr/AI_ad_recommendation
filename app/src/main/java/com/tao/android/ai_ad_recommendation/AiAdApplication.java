@@ -29,7 +29,8 @@ public class AiAdApplication extends Application {
                 getApplicationContext(),
                 AppDatabase.class,
                 AppDatabase.DATABASE_NAME
-        ).build();
+        ).fallbackToDestructiveMigration()
+         .build();
     }
 
     public AppDatabase getDatabase() {

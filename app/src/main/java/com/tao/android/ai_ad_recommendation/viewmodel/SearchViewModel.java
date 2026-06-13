@@ -26,7 +26,9 @@ public class SearchViewModel extends ViewModel {
         this.allAds = ads;
         List<ChatMessage> msgs = new ArrayList<>();
         msgs.add(new ChatMessage(ChatMessage.ROLE_AI,
-            "你好！我是AI广告助手，帮你从" + (ads != null ? ads.size() : 0) + "条广告里找到最合适的。\n\n直接告诉我想看什么吧，比如:\n• 有没有拍照好的手机？\n• 推荐适合学生的好物\n• 最近有什么新出的游戏？", null));
+            "你好！我是AI广告助手，帮你从"
+                    + (ads != null ? ads.size() : 0)
+                    + "条广告里找到最合适的。\n\n直接告诉我想看什么吧，比如:\n• 有没有拍照好的手机？\n• 推荐适合学生的好物\n• 最近有什么新出的游戏？", null));
         chatHistory.setValue(msgs);
     }
 
@@ -53,6 +55,7 @@ public class SearchViewModel extends ViewModel {
             msgs.add(new ChatMessage(ChatMessage.ROLE_USER, query, null));
             msgs.add(new ChatMessage(ChatMessage.ROLE_AI, finalReply,
                 matched.isEmpty() ? null : matched));
+
             chatHistory.setValue(msgs);
             thinking.setValue(false);
         });

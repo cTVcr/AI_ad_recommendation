@@ -49,17 +49,21 @@ public class BehaviorRepository {
      */
     // TODO: 【你来写-中等】实现这个方法
     public void toggleLike(String adId, OnToggleCallback callback) {
+
         executor.execute(() -> {
             UserBehavior existing = behaviorDao.getBehaviorSync(adId, Constants.BEHAVIOR_LIKE);
             if (existing != null) {
                 // 已有点赞 → 取消
                 behaviorDao.deleteBehavior(existing);
                 callback.onResult(false);
+
             } else {
                 // 没有点赞 → 点赞
                 UserBehavior like = new UserBehavior(adId, Constants.BEHAVIOR_LIKE, null, System.currentTimeMillis());
+
                 behaviorDao.insertBehavior(like);
                 callback.onResult(true);
+
             }
         });
     }
@@ -76,12 +80,17 @@ public class BehaviorRepository {
             // ====== 你的代码从这里开始 ======
             UserBehavior existing = behaviorDao.getBehaviorSync(adId, Constants.BEHAVIOR_FAVORITE);
             if (existing!=null) {
+
                 behaviorDao.deleteBehavior(existing);
                 callback.onResult(false);
+
             }else {
                 UserBehavior fav = new UserBehavior(adId, Constants.BEHAVIOR_FAVORITE, null, System.currentTimeMillis());
+
                 behaviorDao.insertBehavior(fav);
+
                 callback.onResult(true);
+
             }
 
             // ====== 你的代码到这里结束 ======
@@ -98,7 +107,7 @@ public class BehaviorRepository {
     // TODO: 【你来写-简单】
     public void addComment(String adId, String commentText) {
         executor.execute(() -> {
-            // ====== 你的代码 ======
+
             UserBehavior comment = new UserBehavior(adId, Constants.BEHAVIOR_COMMENT, commentText, System.currentTimeMillis());
             behaviorDao.insertBehavior(comment);
         });

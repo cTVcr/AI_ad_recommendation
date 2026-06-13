@@ -53,7 +53,9 @@ public class SplashActivity extends AppCompatActivity {
         // 动画结束后跳转到主界面
         int totalDelay = INITIAL_PAUSE + (LETTER_IDS.length - 1) * STAGGER_DELAY + BOUNCE_DURATION + 500;
         new Handler().postDelayed(() -> {
-            startActivity(new Intent(SplashActivity.this, MainActivity.class));
+            startActivity(
+                    new Intent(SplashActivity.this, MainActivity.class)
+            );
             finish();
         }, totalDelay);
     }
@@ -63,7 +65,10 @@ public class SplashActivity extends AppCompatActivity {
      * 💡 OvershootInterpolator(1.5f) — 超过目标再弹回，像弹簧
      */
     private void bounceLetter(View view) {
+
+
         ObjectAnimator upDown = ObjectAnimator.ofFloat(view, "translationY", 0f, -45f, 0f);
+
         upDown.setDuration(BOUNCE_DURATION);
         upDown.setInterpolator(new OvershootInterpolator(1.5f));
 

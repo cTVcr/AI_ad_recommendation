@@ -33,7 +33,7 @@ public class MockDataSource {
 
     private final Context context;
     private final Gson gson;
-    private List<AdItem> allAds;  // 内存中缓存全部广告数据
+    private List<AdItem> allAds;
 
     public MockDataSource(Context context) {
         this.context = context;
@@ -74,28 +74,30 @@ public class MockDataSource {
      * }
      * }</pre>
      */
-//    public String parseAdFeedJson(){
-//
-//
-//    }
-
-
     // TODO: 【你来写-中等】实现这个方法
     public void loadMockData() {
         // ====== 你的代码从这里开始 ======
         try {
+
             InputStream is = context.getAssets().open(Constants.MOCK_DATA_FILE);
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
             StringBuilder sb = new StringBuilder();
+
             String line;
+
             while ((line = reader.readLine()) != null) {
                 sb.append(line);
             }
+
             reader.close();
 //            Gson 把JSON字符串-->Java对象列表
-            Type listType = new TypeToken<List<AdItem>>() {}.getType();
+
+            Type listType = new TypeToken<List<AdItem>>() {
+            }.getType();
+
             allAds=gson.fromJson(sb.toString(),listType);
+
         } catch (IOException e) {
             e.printStackTrace();
             allAds=new ArrayList<>();
@@ -168,10 +170,13 @@ public class MockDataSource {
             return ad.getCategory().equals(category);
         }).collect(Collectors.toList());
 
+
         int start=page*Constants.PAGE_SIZE;
+
         if (start >= itemList.size()) {
             return new ArrayList<>();
         }
+
         int end=Math.min(start+Constants.PAGE_SIZE, itemList.size());
 
         return new ArrayList<>(itemList.subList(start,end));  // 替换这行
@@ -206,13 +211,9 @@ public class MockDataSource {
         Collections.shuffle(nList);
 
         int limit=Math.min(nList.size(), count);
+
         return new ArrayList<>(nList.subList(0,limit));  // 替换这行
 
         // ====== 你的代码到这里结束 ======
-    }
-
-    /** 获取总广告数 */
-    public int getTotalCount() {
-        return allAds != null ? allAds.size() : 0;
     }
 }

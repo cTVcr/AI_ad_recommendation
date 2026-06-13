@@ -23,5 +23,4 @@ public class ChatMessage implements Serializable {
     public String getRole() { return role; }
     public String getText() { return text; }
     public List<AdItem> getAdResults() { return adResults; }
-    public long getTimestamp() { return timestamp; }
 }
