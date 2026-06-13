@@ -18,6 +18,12 @@
         android:layout_height="120dp"
         android:background="@drawable/bg_card_top_rounded">
 
+        <ImageView
+            android:id="@+id/card_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop" />
+
         <TextView
             android:id="@+id/card_banner_text"
             android:layout_width="match_parent"

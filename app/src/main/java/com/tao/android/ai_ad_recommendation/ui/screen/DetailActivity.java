@@ -42,6 +42,7 @@ public class DetailActivity extends AppCompatActivity {
 
         // ====== 第1步：接收Intent传来的广告数据 ======
         // 💡 知识点：AdItem 实现了 Serializable，可以通过Intent传递
+
         adItem = (AdItem) getIntent().getSerializableExtra("ad_item");
         if (adItem == null) {
             finish();  // 数据异常，直接关闭
@@ -55,8 +56,8 @@ public class DetailActivity extends AppCompatActivity {
 //        // TODO: 如果ViewModel需要构造参数，创建Factory（参考MainFeedFragment的做法）
 //        viewModel.setAd(adItem);
         // 💡 知识点：ViewModel构造有参数时，必须用Factory
-        BehaviorRepository behaviorRepository = new BehaviorRepository(
-                ((AiAdApplication) getApplication()).getDatabase().behaviorDao());
+
+        BehaviorRepository behaviorRepository = new BehaviorRepository(((AiAdApplication) getApplication()).getDatabase().behaviorDao());
         viewModel = new ViewModelProvider(this, new DetailViewModelFactory(behaviorRepository))
                 .get(DetailViewModel.class);
         viewModel.setAd(adItem);  // ← 这行丢了!
@@ -72,19 +73,19 @@ public class DetailActivity extends AppCompatActivity {
         // 4. 如果是视频：初始化 ExoPlayer，设置视频URL
         // 5. 设置标题、描述、广告主等信息
 
-        // 顶部色块 + 叠加标题
-        TextView bannerText = findViewById(R.id.detail_banner_text);
+        // 顶部图片
         ImageView imageView = findViewById(R.id.detail_image);
-        int color = 0xFFA8D8EA;
-        switch (adItem.getCategory()) {
-            case "推荐": color = 0xFFA8D8EA; break;
-            case "关注": color = 0xFFFFC8C3; break;
-            case "热门": color = 0xFFFFE0C8; break;
+        TextView bannerText = findViewById(R.id.detail_banner_text);
+        bannerText.setVisibility(View.GONE);  // 有真实图片后不再需要色块文字
+        if (adItem.getImageUrl() != null && !adItem.getImageUrl().isEmpty()) {
+            com.bumptech.glide.Glide.with(this)
+                .load(adItem.getImageUrl())
+                .centerCrop()
+                .into(imageView);
         }
-        imageView.setBackgroundColor(color);
-        imageView.setImageDrawable(null);
-        bannerText.setText(adItem.getTitle());
 
+
+        //AI
         // ─── 视频模式：全屏播放器 ───
         VideoPlayerView detailVideoPlayer = findViewById(R.id.detail_video_player);
         FrameLayout mediaContainer = findViewById(R.id.detail_media_container);

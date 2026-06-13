@@ -29,7 +29,9 @@ import com.tao.android.ai_ad_recommendation.ui.component.InteractionBar;
 import com.tao.android.ai_ad_recommendation.ui.component.VideoPlayerView;
 import com.tao.android.ai_ad_recommendation.viewmodel.MainFeedViewModel;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 主信息流 Fragment - 全屏滑动广告列表
@@ -60,31 +62,36 @@ public class MainFeedFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_main_feed, container, false);
     }
 
+    //todo
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         // ====== 第一步：绑定控件 ======
+
         tabLayout = view.findViewById(R.id.tab_layout);
         swipeRefresh = view.findViewById(R.id.swipe_refresh);
         recyclerView = view.findViewById(R.id.recycler_view);
 
         // 搜索框：点击弹出搜索弹窗
         EditText searchBox = view.findViewById(R.id.search_box);
+        //点击事件
         searchBox.setOnClickListener(v -> {
             SearchDialogFragment dialog = new SearchDialogFragment();
-            // 直接传数据，不走parentFragment（因为用的是Activity的FragmentManager）
+
+
             if (viewModel.adList.getValue() != null) {
                 dialog.setAllAds(viewModel.adList.getValue());
             }
+
             dialog.show(getParentFragmentManager(), "SearchDialog");
         });
 
         // ====== 第二步：创建ViewModel ======
         // 💡 知识点：ViewModelProvider 创建ViewModel，自动管理生命周期
         AdRepository repository = new AdRepository(requireContext());
-        viewModel = new ViewModelProvider(this,
-                new MainFeedViewModelFactory(repository))
+
+        viewModel = new ViewModelProvider(this, new MainFeedViewModelFactory(repository))
                 .get(MainFeedViewModel.class);
 
         // ====== 第三步：设置RecyclerView ======
@@ -96,11 +103,12 @@ public class MainFeedFragment extends Fragment {
         // 3. 创建 AdFeedAdapter
         // 4. recyclerView.setAdapter(adapter)
 
-
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        BehaviorRepository behaviorRopo=new BehaviorRepository(
+
+        BehaviorRepository behaviorRepo=new BehaviorRepository(
                 ((AiAdApplication)requireActivity().getApplication()).getDatabase().behaviorDao());
-        adapter=new AdFeedAdapter(behaviorRopo);
+        adapter=new AdFeedAdapter(behaviorRepo);
+
         recyclerView.setAdapter(adapter);
 
         // ====== 第四步：设置Tab切换 ======
@@ -116,6 +124,7 @@ public class MainFeedFragment extends Fragment {
         tabLayout.addTab(tabLayout.newTab().setText("推荐"));
         tabLayout.addTab(tabLayout.newTab().setText("关注"));
         tabLayout.addTab(tabLayout.newTab().setText("热门"));
+        //监听tab选择
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -132,30 +141,13 @@ public class MainFeedFragment extends Fragment {
         // 观察 viewModel.isRefreshing，更新 swipeRefresh.setRefreshing()
 
         swipeRefresh.setOnRefreshListener(() -> viewModel.refresh());
-        viewModel.isRefreshing.observe(getViewLifecycleOwner(), refreshing
-                ->
-                swipeRefresh.setRefreshing(refreshing != null && refreshing));
+
+        viewModel.isRefreshing.observe(getViewLifecycleOwner(), refreshing -> swipeRefresh.setRefreshing(refreshing != null && refreshing));
 
         // ====== 第六步：设置无限滚动 ======
         // TODO: 【你来写-中等】setupInfiniteScroll()
-        //
-        // 思路：给RecyclerView添加滚动监听
-        // recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-        //     @Override
-        //     public void onScrolled(RecyclerView rv, int dx, int dy) {
-        //         判断是否滑到底部：
-        //         LinearLayoutManager lm = (LinearLayoutManager) rv.getLayoutManager();
-        //         int lastVisible = lm.findLastVisibleItemPosition();
-        //         int totalItems = adapter.getItemCount();
-        //         if (lastVisible >= totalItems - 2) {
-        //             viewModel.loadNextPage();
-        //         }
-        //     }
-        // })
-
-
         // 埋点：记录已曝光过的广告ID（避免重复计数）
-        java.util.Set<String> impressedIds = new java.util.HashSet<>();
+        Set<String> impressedIds = new HashSet<>();
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -171,6 +163,7 @@ public class MainFeedFragment extends Fragment {
                 // 曝光埋点：当前可见的卡片记录曝光
                 int firstVisible = lm.findFirstVisibleItemPosition();
                 int lastVisible = lm.findLastVisibleItemPosition();
+
                 if (adapter.behaviorRepo != null && adapter.adList != null) {
                     for (int i = firstVisible; i <= lastVisible && i < adapter.adList.size(); i++) {
                         String id = adapter.adList.get(i).getId();
@@ -191,10 +184,6 @@ public class MainFeedFragment extends Fragment {
              adapter.setData(ads);
              adapter.notifyDataSetChanged();
          });
-        //
-        // viewModel.isLoading.observe(...)  // 控制loading提示
-        // viewModel.hasMore.observe(...)    // 控制"没有更多了"
-
 
         // ====== 第八步：加载首页数据 ======
         viewModel.loadFirstPage();
@@ -234,7 +223,6 @@ public class MainFeedFragment extends Fragment {
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             // TODO: 【你来写-中等】根据viewType加载不同item布局
-            // 用 LayoutInflater.from(parent.getContext()).inflate(...)
 
             int layoutId;
             if (viewType==1){
@@ -249,23 +237,33 @@ public class MainFeedFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             // TODO: 【你来写-中等】绑定数据到ViewHolder
-            // AdItem item = adList.get(position)
 
             AdItem item=adList.get(position);
 
             holder.titleView.setText(item.getTitle());
-            holder.descriptionView.setText(item.getDescription());
+            holder.descriptionView.setText(item.getSummary());
             holder.advertiserView.setText(item.getAdvertiser());
 
-            // 色块颜色
-            int bgColor = getCategoryColor(item.getCategory());
-            holder.bannerContainer.getBackground().setTint(bgColor);
-            holder.categoryBannerText.setText(item.getTitle());
+            // 加载图片（所有卡片都用Glide加载asset图片）
+            if (holder.mainImageView != null && item.getImageUrl() != null
+                    && !item.getImageUrl().isEmpty()) {
+                com.bumptech.glide.Glide.with(holder.mainImageView)
+                    .load(item.getImageUrl())
+                    .centerCrop()
+                    .into(holder.mainImageView);
+                holder.mainImageView.setVisibility(View.VISIBLE);
+            } else if (holder.mainImageView != null) {
+                holder.mainImageView.setVisibility(View.GONE);
+            }
+
+            // 隐藏色块覆盖文字（有真实图片后不需要了）
+            holder.bannerContainer.getBackground().setTint(0xFFE8E8E8);
+            holder.categoryBannerText.setVisibility(View.GONE);
 
             // ─── 三种样式：大图/小图/视频 ───
             String adType = item.getType();
             if ("video".equals(adType)) {
-                // 视频卡片：不创建ExoPlayer（防闪），显示色块+▶按钮，点击跳详情页全屏有声播放
+                // 视频卡片：显示封面图+▶按钮，点击跳详情页全屏有声播放
                 if (holder.videoPlayerView != null) holder.videoPlayerView.setVisibility(View.GONE);
                 if (holder.videoPlayButton != null) {
                     holder.videoPlayButton.setVisibility(View.VISIBLE);
@@ -276,20 +274,9 @@ public class MainFeedFragment extends Fragment {
                         v.getContext().startActivity(intent);
                     });
                 }
-                holder.categoryBannerText.setText("▶ " + item.getTitle());
-                // 色块用深色背景表示视频卡片
-                holder.bannerContainer.getBackground().setTint(0xFF4A4A5A);
             } else {
                 if (holder.videoPlayerView != null) holder.videoPlayerView.setVisibility(View.GONE);
                 if (holder.videoPlayButton != null) holder.videoPlayButton.setVisibility(View.GONE);
-            }
-
-            // AI摘要
-            if (item.getSummary() != null && !item.getSummary().isEmpty()) {
-                holder.cardSummaryView.setText(item.getSummary());
-                holder.cardSummaryView.setVisibility(View.VISIBLE);
-            } else {
-                holder.cardSummaryView.setVisibility(View.GONE);
             }
 
             // 标签
@@ -359,16 +346,6 @@ public class MainFeedFragment extends Fragment {
             });
         }
 
-        /** 根据广告分类返回对应的颜色（每个分类视觉上能区分） */
-        private int getCategoryColor(String category) {
-            switch (category) {
-                case "推荐": return 0xFFA8D8EA;  // 天空蓝
-                case "关注": return 0xFFFFC8C3;  // 樱花粉
-                case "热门": return 0xFFFFE0C8;  // 蜜桃橙
-                default:     return 0xFFC1E8D5;  // 薄荷绿
-            }
-        }
-
         @Override
         public int getItemCount() {
             return adList != null ? adList.size() : 0;
@@ -402,7 +379,6 @@ public class MainFeedFragment extends Fragment {
             InteractionBar interactionBar;
             ImageView videoPlayButton;
             VideoPlayerView videoPlayerView;
-            String lastSetupUrl; // 防重复初始化导致闪烁
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
