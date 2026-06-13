@@ -2,8 +2,6 @@ package com.tao.android.ai_ad_recommendation.data.repository;
 
 import android.content.Context;
 
-import androidx.lifecycle.LiveData;
-
 import com.tao.android.ai_ad_recommendation.data.remote.MockDataSource;
 import com.tao.android.ai_ad_recommendation.model.AdItem;
 
@@ -82,8 +80,4 @@ public class AdRepository {
 
     }
 
-    /** 获取总数据量 */
-    public int getTotalCount() {
-        return mockDataSource.getTotalCount();
-    }
 }

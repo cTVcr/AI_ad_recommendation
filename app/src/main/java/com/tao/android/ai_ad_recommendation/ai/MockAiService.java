@@ -1,17 +1,11 @@
 package com.tao.android.ai_ad_recommendation.ai;
 
-import com.tao.android.ai_ad_recommendation.model.AiResult;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * Mock AI服务 — 基于关键词匹配生成标签和摘要，模拟AI语义理解
  *
  * 核心思路：分析广告标题和描述中的关键词 → 匹配标签 → 生成摘要
  */
-public class MockAiService implements AiService {
+public class MockAiService {
 
     // ─── 关键词 → 标签映射表（模拟AI语义理解） ───
     private static final java.util.Map<String, String> KEYWORD_TAG_MAP = new java.util.HashMap<>();
@@ -64,58 +58,13 @@ public class MockAiService implements AiService {
         KEYWORD_TAG_MAP.put("曲库", "数码");
     }
 
-    @Override
-    public AiResult generateSummary(String adId, String adDescription) {
-        // 基于描述内容选摘要模板
-        int hash = Math.abs(adId.hashCode());
-        String[] templates = {
-            "🔥 限时优惠！点击了解详情",
-            "⭐ 好评如潮！用户真实评价超千条",
-            "🆕 新品首发！抢先体验",
-            "💎 品质之选！做工精良",
-            "🏆 销量领先！本月已售万件",
-            "📦 品质保障！官方正品",
-            "✅ 强烈推荐！值得入手",
-            "🎯 精准匹配！为您推荐"
-        };
-        String summary = templates[hash % templates.length];
-
-        AiResult result = new AiResult();
-        result.setAdId(adId);
-        result.setSummary(summary);
-        result.setGeneratedAt(System.currentTimeMillis());
-        return result;
-    }
-
-    @Override
-    public AiResult generateTags(String adId, String adTitle, String adDescription) {
-        // 合并标题和描述中的关键词，匹配标签
-        String text = (adTitle + " " + adDescription).toLowerCase();
-        java.util.Set<String> matchedTags = new java.util.LinkedHashSet<>();
-
-        for (java.util.Map.Entry<String, String> entry : KEYWORD_TAG_MAP.entrySet()) {
-            if (text.contains(entry.getKey())) {
-                matchedTags.add(entry.getValue());
-            }
-        }
-
-        // 如果匹配太少，补一个默认标签
-        if (matchedTags.size() < 2) {
-            int hash = Math.abs(adId.hashCode());
-            String[] defaults = {"热卖", "新品", "性价比", "品牌正品"};
-            matchedTags.add(defaults[hash % defaults.length]);
-        }
-
-        AiResult result = new AiResult();
-        result.setAdId(adId);
-        result.setTags(new ArrayList<>(matchedTags));
-        result.setGeneratedAt(System.currentTimeMillis());
-        return result;
-    }
-
-    @Override
+    /**
+     * 语义搜索：从用户自然语言输入提取关键词 → 返回匹配的标签列表（逗号分隔）
+     *
+     * @param query 用户输入，如 "想买拍照好的手机"
+     * @return 匹配的标签，如 "科技,数码"
+     */
     public String semanticSearch(String query) {
-        // 意图识别：从用户输入提取关键词 → 返回匹配的标签列表（逗号分隔）
         if (query == null || query.trim().isEmpty()) return "";
 
         String q = query.toLowerCase();
@@ -123,33 +72,19 @@ public class MockAiService implements AiService {
 
         // 意图映射表：口语 → 标签。第一列是标签名，后面是触发词
         String[][] intentMap = {
-            // 价格/性价比相关
             {"性价比", "便宜", "实惠", "低价", "不贵", "省钱", "划算", "白菜", "学生", "预算", "平价"},
-            // 新品相关
             {"新品", "最新", "新出", "首发", "新款", "新上市", "刚出", "刚发布", "新买"},
-            // 品牌正品
             {"品牌正品", "质量好", "正品", "正版", "官方", "旗舰", "靠谱", "放心", "信得过"},
-            // 热卖
             {"热卖", "火", "热门", "流行", "多人买", "畅销", "爆款", "大家都在", "推荐"},
-            // 限时优惠
             {"限时优惠", "优惠", "打折", "折扣", "便宜点", "降价", "促销", "活动", "特价", "骨折"},
-            // 科技
             {"科技", "科技", "数码", "电子", "智能", "手机", "电脑", "芯片", "高科技", "黑科技"},
-            // 游戏
             {"游戏", "游戏", "玩", "剧情", "打怪", "Boss", "通关", "手柄", "电竞", "娱乐"},
-            // 美妆
             {"美妆", "美妆", "化妆", "口红", "唇釉", "彩妆", "护肤", "漂亮", "好看", "美丽", "化妆品"},
-            // 食品
             {"食品", "吃", "零食", "坚果", "咖啡", "奶茶", "喝", "美食", "好吃", "饮料", "食物", "早餐"},
-            // 家电
             {"家电", "家电", "电器", "空调", "冰箱", "吸尘", "洗衣机", "电视", "家居", "打扫"},
-            // 服饰
             {"服饰", "鞋", "穿搭", "运动", "潮流", "穿", "衣服", "裤子", "潮牌", "搭配"},
-            // 数码
             {"数码", "数码", "拍照", "摄像", "相机", "音乐", "耳机", "音质", "听歌", "视频", "录制", "像素"},
-            // 办公利器
             {"办公利器", "办公", "工作", "商务", "笔记本", "出差", "键盘", "生产力", "上班"},
-            // 学生党
             {"学生党", "学生", "大学", "校园", "考试", "宿舍", "年轻人", "上学", "学习"},
         };
 

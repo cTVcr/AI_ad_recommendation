@@ -42,15 +42,9 @@ dependencies {
     // AndroidX 核心
     implementation("androidx.core:core:1.15.0")
     implementation("androidx.appcompat:appcompat:1.7.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.2.0")
 
-    // Fragment + Navigation
+    // Fragment
     implementation("androidx.fragment:fragment:1.8.6")
-    implementation("androidx.navigation:navigation-fragment:2.9.0")
-    implementation("androidx.navigation:navigation-ui:2.9.0")
-
-    // ViewPager2 (全屏滑动信息流)
-    implementation("androidx.viewpager2:viewpager2:1.1.0")
 
     // SwipeRefreshLayout (下拉刷新)
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")

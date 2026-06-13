@@ -26,10 +26,6 @@ import java.util.List;
 @Dao
 public interface BehaviorDao {
 
-    /** 查某个广告的所有行为 */
-    @Query("SELECT * FROM user_behaviors WHERE ad_id = :adId ORDER BY timestamp DESC")
-    LiveData<List<UserBehavior>> getBehaviorsByAd(String adId);
-
     /** 查某个广告某种行为的数量（比如"有多少人点赞"） */
     @Query("SELECT COUNT(*) FROM user_behaviors WHERE ad_id = :adId AND behavior_type = :type")
     LiveData<Integer> getBehaviorCount(String adId, String type);
@@ -37,10 +33,6 @@ public interface BehaviorDao {
     /** 查某个广告的所有评论 */
     @Query("SELECT * FROM user_behaviors WHERE ad_id = :adId AND behavior_type = 'comment' ORDER BY timestamp DESC")
     LiveData<List<UserBehavior>> getComments(String adId);
-
-    /** 查某用户是否对某广告有点赞/收藏记录（用于判断按钮初始状态） */
-    @Query("SELECT * FROM user_behaviors WHERE ad_id = :adId AND behavior_type = :type LIMIT 1")
-    LiveData<UserBehavior> getBehavior(String adId, String type);
 
     /** 同步查询（仅在后台线程使用！toggle逻辑用） */
     @Query("SELECT * FROM user_behaviors WHERE ad_id = :adId AND behavior_type = :type LIMIT 1")
@@ -54,7 +46,4 @@ public interface BehaviorDao {
     @Delete
     void deleteBehavior(UserBehavior behavior);
 
-    /** 按类型删除（取消操作时用） */
-    @Query("DELETE FROM user_behaviors WHERE ad_id = :adId AND behavior_type = :type")
-    void deleteBehaviorByType(String adId, String type);
 }
